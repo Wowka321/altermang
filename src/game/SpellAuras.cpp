@@ -7970,12 +7970,14 @@ void Aura::HandleAllowOnlyAbility(bool apply, bool Real)
        m_target->setAttackTimer(BASE_ATTACK,m_duration);
        m_target->setAttackTimer(RANGED_ATTACK,m_duration);
        m_target->setAttackTimer(OFF_ATTACK,m_duration);
+       m_target->SetFlag(PLAYER_FLAGS,PLAYER_FLAGS_UNK24);
     }
     else
     {
        m_target->resetAttackTimer(BASE_ATTACK);
        m_target->resetAttackTimer(RANGED_ATTACK);
        m_target->resetAttackTimer(OFF_ATTACK);
+       m_target->RemoveFlag(PLAYER_FLAGS,PLAYER_FLAGS_UNK24);
     }
 
     m_target->UpdateDamagePhysical(BASE_ATTACK);
