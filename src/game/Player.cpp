@@ -1390,7 +1390,10 @@ void Player::Update( uint32 p_time )
         if (!m_regenTimer)
             RegenerateAll();
     }
-
+    if (!isAlive() && !HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_GHOST))
+    {
+        SetHealth(0);
+    }
     if (m_deathState == JUST_DIED)
     {   // Prevent death of jailed players
         if (!m_jail_isjailed) KillPlayer();
@@ -2483,7 +2486,14 @@ void Player::GiveXP(uint32 xp, Unit* victim)
     if(!isAlive())
         return;
 
+    if(HasFlag(PLAYER_FLAGS, PLAYER_FLAGS_XP_USER_DISABLED))
+        return;
+
     uint32 level = getLevel();
+
+    //prevent Northrend Level Leeching :P
+    if(level < 66 && GetMapId() == 571)
+        return;
 
     // XP to money conversion processed in Player::RewardQuest
     if(level >= sWorld.getConfig(CONFIG_UINT32_MAX_PLAYER_LEVEL))
@@ -6321,7 +6331,7 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor)
             if (!cVictim->isRacialLeader())
                 return false;
 
-            honor = 100;                                    // ??? need more info
+            honor = 2000;                                    // ??? need more info
             victim_rank = 19;                               // HK: Leader
         }
     }
@@ -6730,13 +6740,19 @@ void Player::_ApplyItemMods(Item *item, uint8 slot,bool apply)
     if(slot >= INVENTORY_SLOT_BAG_END || !item)
         return;
 
-    // not apply/remove mods for broken item
-    if(item->IsBroken())
-        return;
-
     ItemPrototype const *proto = item->GetProto();
 
     if(!proto)
+        return;
+
+    if(item->IsBroken() && proto->Socket[0].Color)  //This need to remove bonuses from meta if item broken
+      {
+        CorrectMetaGemEnchants(slot, apply);
+        return;
+      }
+
+    // not apply/remove mods for broken item
+    if(item->IsBroken())
         return;
 
     sLog.outDetail("applying mods for item %u ",item->GetGUIDLow());
@@ -7085,7 +7101,7 @@ void Player::_ApplyWeaponDependentAuraCritMod(Item *item, WeaponAttackType attac
         default: return;
     }
 
-    if (item->IsFitToSpellRequirements(aura->GetSpellProto()))
+    if (!item->IsBroken()&&item->IsFitToSpellRequirements(aura->GetSpellProto()))
     {
         HandleBaseModValue(mod, FLAT_MOD, float (aura->GetModifier()->m_amount), apply);
     }
@@ -7119,7 +7135,7 @@ void Player::_ApplyWeaponDependentAuraDamageMod(Item *item, WeaponAttackType att
         default: return;
     }
 
-    if (item->IsFitToSpellRequirements(aura->GetSpellProto()))
+    if (!item->IsBroken()&&item->IsFitToSpellRequirements(aura->GetSpellProto()))
     {
         HandleStatModifier(unitMod, unitModType, float(modifier->m_amount),apply);
     }
@@ -9074,6 +9090,9 @@ uint8 Player::_CanTakeMoreSimilarItems(uint32 entry, uint32 count, Item* pItem, 
             *no_space_count = count;
         return EQUIP_ERR_CANT_CARRY_MORE_OF_THIS;
     }
+
+	if (pItem && pItem->m_lootGenerated)
+        return EQUIP_ERR_ALREADY_LOOTED;
 
     // no maximum
     if(pProto->MaxCount <= 0)
@@ -12008,6 +12027,9 @@ void Player::ApplyEnchantment(Item *item, EnchantmentSlot slot, bool apply, bool
         return;
 
     if (!item->IsEquipped())
+        return;
+
+    if (apply && HasFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_DISARMED))
         return;
 
     if (slot >= MAX_ENCHANTMENT_SLOT)
@@ -16347,15 +16369,15 @@ void Player::SaveToDB()
     sLog.outDebug("The value of player %s at save: ", m_name.c_str());
     outDebugValues();
 
-    CharacterDatabase.BeginTransaction();
+    //CharacterDatabase.BeginTransaction();
 
-    CharacterDatabase.PExecute("DELETE FROM characters WHERE guid = '%u'",GetGUIDLow());
+    //CharacterDatabase.PExecute("DELETE FROM characters WHERE guid = '%u'",GetGUIDLow());
 
     std::string sql_name = m_name;
     CharacterDatabase.escape_string(sql_name);
 
     std::ostringstream ss;
-    ss << "INSERT INTO characters (guid,account,name,race,class,gender,level,xp,money,playerBytes,playerBytes2,playerFlags,"
+    ss << "REPLACE INTO characters (guid,account,name,race,class,gender,level,xp,money,playerBytes,playerBytes2,playerFlags,"
         "map, dungeon_difficulty, position_x, position_y, position_z, orientation, data, "
         "taximask, online, cinematic, "
         "totaltime, leveltime, rest_bonus, logout_time, is_logout_resting, resettalents_cost, resettalents_time, "
@@ -16475,6 +16497,8 @@ void Player::SaveToDB()
     ss << uint32(m_activeSpec);
 
     ss << ")";
+
+    CharacterDatabase.BeginTransaction();
 
     CharacterDatabase.Execute( ss.str().c_str() );
 
@@ -18388,7 +18412,7 @@ void Player::UpdateHomebindTime(uint32 time)
     else
     {
         // instance is invalid, start homebind timer
-        m_HomebindTimer = 60000;
+        m_HomebindTimer = 15000;
         // send message to player
         WorldPacket data(SMSG_RAID_GROUP_ONLY, 4+4);
         data << uint32(m_HomebindTimer);
