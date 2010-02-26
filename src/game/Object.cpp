@@ -1825,6 +1825,7 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, 
     selector.InitializeAngle();
 
     // select in positions after current nodes (selection one by one)
+    uint32 i = 0;
     while(selector.NextAngle(angle))                        // angle for free pos
     {
         ++i;
