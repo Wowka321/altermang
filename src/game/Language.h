@@ -822,6 +822,8 @@ enum MangosStrings
     LANG_MOVEGENS_FOLLOW_PLAYER         = 1132,
     LANG_MOVEGENS_FOLLOW_CREATURE       = 1133,
     LANG_MOVEGENS_FOLLOW_NULL           = 1134,
+    LANG_BAN_WORLD_ANNOUNCE             = 1135,
+    LANG_PERMBAN_WORLD_ANNOUNCE         = 1136,
     // Room for more level 3              1135-1199 not used
 
     // Debug commands
