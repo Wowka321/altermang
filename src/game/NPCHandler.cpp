@@ -338,7 +338,8 @@ void WorldSession::HandleGossipSelectOptionOpcode( WorldPacket & recv_data )
             return;
         }
 
-        _player->OnGossipSelect(pGo, gossipListId, menuId);
+        if (!Script->GOGossipSelect(_player, pGo, _player->PlayerTalkClass->GossipOptionSender(gossipListId), _player->PlayerTalkClass->GossipOptionAction(gossipListId)))
+            _player->OnGossipSelect(pGo, gossipListId, menuId);
     }
 }
 
