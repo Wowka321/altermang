@@ -99,12 +99,15 @@ bool ObjectPosSelector::NextAngle(float& angle)
 
 bool ObjectPosSelector::NextUsedAngle(float& angle)
 {
+    uint32 localCounter = 0;
     while(m_nextUsedPos[USED_POS_PLUS]!=m_UsedPosLists[USED_POS_PLUS].end() ||
         m_nextUsedPos[USED_POS_MINUS]!=m_UsedPosLists[USED_POS_MINUS].end() )
     {
         // calculate next possible angle
         if(!NextPosibleAngle(angle))
             return true;
+        if(++localCounter > 100)
+            break;
     }
 
     return false;

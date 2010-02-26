@@ -1827,12 +1827,15 @@ void WorldObject::GetNearPoint(WorldObject const* searcher, float &x, float &y, 
     // select in positions after current nodes (selection one by one)
     while(selector.NextAngle(angle))                        // angle for free pos
     {
+        ++i;
         GetNearPoint2D(x,y,distance2d,absAngle+angle);
         z = GetPositionZ();
         UpdateGroundPositionZ(x,y,z);                       // update to LOS height if available
 
         if(IsWithinLOS(x,y,z))
             return;
+        if (i == 16)
+            break;
     }
 
     // BAD NEWS: not free pos (or used or have LOS problems)

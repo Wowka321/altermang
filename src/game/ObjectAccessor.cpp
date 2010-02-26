@@ -262,6 +262,10 @@ ObjectAccessor::ConvertCorpseForPlayer(uint64 player_guid, bool insignia)
     // remove corpse from DB
     corpse->DeleteFromDB();
 
+    // we don't want bones to save some cpu.. :)
+    delete corpse;
+    return NULL;
+
     Corpse *bones = NULL;
     // create the bones only if the map and the grid is loaded at the corpse's location
     // ignore bones creating option in case insignia
