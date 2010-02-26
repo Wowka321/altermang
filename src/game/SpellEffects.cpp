@@ -3764,6 +3764,7 @@ void Spell::DoSummon(SpellEffectIndex eff_idx)
     
     spawnCreature->UpdateWalkMode(m_caster);
 
+    spawnCreature->SelectFollowAngle();
     spawnCreature->AIM_Initialize();
     spawnCreature->InitPetCreateSpells();
     spawnCreature->InitLevelupSpellsForLevel();
@@ -4171,6 +4172,7 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
         spawnCreature->InitStatsForLevel(level, m_caster);
         spawnCreature->GetCharmInfo()->SetPetNumber(pet_number, false);
 
+        spawnCreature->SelectFollowAngle();
         spawnCreature->AIM_Initialize();
 
         m_caster->AddGuardian(spawnCreature);
@@ -4702,6 +4704,7 @@ void Spell::EffectSummonPet(SpellEffectIndex eff_idx)
         NewSummon->SetByteFlag(UNIT_FIELD_BYTES_2, 2, UNIT_CAN_BE_ABANDONED);
     }
 
+    NewSummon->SelectFollowAngle();
     NewSummon->AIM_Initialize();
     NewSummon->SetHealth(NewSummon->GetMaxHealth());
     NewSummon->SetPower(POWER_MANA, NewSummon->GetMaxPower(POWER_MANA));
@@ -6765,6 +6768,7 @@ void Spell::DoSummonCritter(SpellEffectIndex eff_idx, uint32 forceFaction)
 
     critter->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
     critter->setFaction(forceFaction ? forceFaction : m_caster->getFaction());
+    critter->SelectFollowAngle();
     critter->AIM_Initialize();
     critter->InitPetCreateSpells();                         // e.g. disgusting oozeling has a create spell as critter...
     //critter->InitLevelupSpellsForLevel();                 // none?
@@ -6856,6 +6860,7 @@ void Spell::EffectSummonDeadPet(SpellEffectIndex /*eff_idx*/)
     pet->clearUnitState(UNIT_STAT_ALL_STATE);
     pet->SetHealth( uint32(pet->GetMaxHealth()*(float(damage)/100)));
 
+    pet->SelectFollowAngle();
     pet->AIM_Initialize();
 
     // _player->PetSpellInitialize(); -- action bar not removed at death and not required send at revive

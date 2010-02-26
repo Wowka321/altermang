@@ -3640,7 +3640,7 @@ void Aura::HandleModPossessPet(bool apply, bool Real)
     else
     {
         pet->AttackStop();
-        pet->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+        pet->GetMotionMaster()->MoveFollow(caster, PET_FOLLOW_DIST, pet->GetFollowAngle());
         pet->AddSplineFlag(SPLINEFLAG_WALKMODE);
     }
 }
