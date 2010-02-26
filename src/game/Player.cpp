@@ -11743,6 +11743,37 @@ void Player::SwapItem( uint16 src, uint16 dst )
     else if (IsEquipmentPos(src))
         EquipItem(eDest2, pDstItem, true);
 
+    // if player is moving bags and is looting an item inside this bag
+    // release the loot
+    if (GetLootGUID())
+    {
+        bool released = false;
+        if (IsBagPos(src))
+        {
+            Bag* bag = (Bag*)pSrcItem;
+            for(uint32 i=0; i < bag->GetBagSize(); ++i)
+                if (Item *bagItem = bag->GetItemByPos(i))
+                    if (bagItem->m_lootGenerated)
+                    {
+                        m_session->DoLootRelease(GetLootGUID());
+                        released = true;                    // so we don't need to look at dstBag
+                        break;
+                    }
+        }
+        if (!released && IsBagPos(dst) && pDstItem)
+        {
+            Bag* bag = (Bag*)pDstItem;
+            for(uint32 i=0; i < bag->GetBagSize(); ++i)
+                if (Item *bagItem = bag->GetItemByPos(i))
+                    if (bagItem->m_lootGenerated)
+                    {
+                        m_session->DoLootRelease(GetLootGUID());
+                        released = true;                    // not realy needed here
+                        break;
+                    }
+        }
+    }
+
     AutoUnequipOffhandIfNeed();
 }
 
