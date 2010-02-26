@@ -8863,7 +8863,7 @@ void Unit::EnergizeBySpell(Unit *pVictim, uint32 SpellID, uint32 Damage, Powers 
 
 uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack)
 {
-    if(!spellProto || !pVictim || damagetype==DIRECT_DAMAGE )
+    if(!spellProto || !pVictim || damagetype==DIRECT_DAMAGE || spellProto->Id == 17962)
         return pdamage;
 
     // For totems get damage bonus from owner (statue isn't totem in fact)
