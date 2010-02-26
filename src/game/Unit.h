@@ -1785,6 +1785,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         PetAuraSet m_petAuras;
         void AddPetAura(PetAura const* petSpell);
         void RemovePetAura(PetAura const* petSpell);
+        uint32 GetModelForForm(ShapeshiftForm form);
         virtual float GetFollowAngle() const { return M_PI_F/2; }
 
         // Movement info
