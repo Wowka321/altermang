@@ -6925,7 +6925,16 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     return false;
                 // TODO: wite script for this "fights on its own, doing the same attacks"
                 // NOTE: Trigger here on every attack and spell cast
-                return false;
+                 Pet* runeBlade = FindGuardianWithEntry(27893);
+                 if (!runeBlade)
+                   return false;
+                 else
+                 {
+                 // only melee based spells?
+                   if(procSpell)
+                      runeBlade->CastSpell(pVictim,procSpell,true,castItem,triggeredByAura);
+                      return true;
+                 }
             }
             // Mark of Blood
             if (dummySpell->Id == 49005)
@@ -7199,6 +7208,12 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
                 //case 36207: break:                        // Steal Weapon
                 //case 36576: break:                        // Shaleskin (Shaleskin Flayer, Shaleskin Ripper) 30023 trigger
                 //case 37030: break;                        // Chaotic Temperament
+                case 38164:                                 // Unyielding Knights
+                {
+                    if (pVictim->GetEntry()!=19457)
+                        return false;
+                    break;
+                }
                 //case 38363: break;                        // Gushing Wound
                 //case 39215: break;                        // Gushing Wound
                 //case 40250: break;                        // Improved Duration
@@ -8646,6 +8661,7 @@ Pet* Unit::GetPet() const
 {
     if(uint64 pet_guid = GetPetGUID())
     {
+        if(IsInWorld())
         if(Pet* pet = GetMap()->GetPet(pet_guid))
             return pet;
 
