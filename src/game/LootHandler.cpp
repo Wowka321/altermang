@@ -25,6 +25,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectDefines.h"
 #include "WorldSession.h"
+#include "InstanceSaveMgr.h"
 #include "LootMgr.h"
 #include "Object.h"
 #include "Group.h"
@@ -310,6 +311,25 @@ void WorldSession::DoLootRelease( uint64 lguid )
                 uint32 go_min = go->GetGOInfo()->chest.minSuccessOpens;
                 uint32 go_max = go->GetGOInfo()->chest.maxSuccessOpens;
 
+                if (player->GetInstanceId())
+                {
+                    Map *map = go->GetMap();
+                    if (map->IsDungeon())
+                    {
+                        if (map->IsRaidOrHeroicDungeon())
+                        {
+                            ((InstanceMap *)map)->PermBindAllPlayers(player);
+                        }
+                        else
+                        {
+                            // the reset time is set but not added to the scheduler
+                            // until the players leave the instance
+                            time_t resettime = go->GetRespawnTimeEx() + 2 * HOUR;
+                            if(InstanceSave *save = sInstanceSaveMgr.GetInstanceSave(player->GetInstanceId()))
+                            if(save->GetResetTime() < resettime) save->SetResetTime(resettime);
+                        }
+                    }
+                }
                 // only vein pass this check
                 if(go_min != 0 && go_max > go_min)
                 {
@@ -366,6 +386,25 @@ void WorldSession::DoLootRelease( uint64 lguid )
         else
             // not fully looted object
             go->SetLootState(GO_ACTIVATED);
+                if (player->GetInstanceId())
+                {
+                    Map *map = go->GetMap();
+                    if (map->IsDungeon())
+                    {
+                        if (map->IsRaidOrHeroicDungeon())
+                        {
+                            ((InstanceMap *)map)->PermBindAllPlayers(player);
+                        }
+                        else
+                        {
+                            // the reset time is set but not added to the scheduler
+                            // until the players leave the instance
+                            time_t resettime = go->GetRespawnTimeEx() + 2 * HOUR;
+                            if(InstanceSave *save = sInstanceSaveMgr.GetInstanceSave(player->GetInstanceId()))
+                            if(save->GetResetTime() < resettime) save->SetResetTime(resettime);
+                        }
+                    }
+                }
     }
     else if (IS_CORPSE_GUID(lguid))        // ONLY remove insignia at BG
     {
