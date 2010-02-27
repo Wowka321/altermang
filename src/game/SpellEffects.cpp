@@ -834,9 +834,6 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                         case 26467:                         // Persistent Shield
                             m_caster->CastCustomSpell(unitTarget, 26470, &damage, NULL, NULL, true);
                             break;
-                        case 64411:                         // Blessing of Ancient Kings
-                            m_caster->CastCustomSpell(unitTarget, 64413, &damage, NULL, NULL, true);
-                            break;
                         default:
                             sLog.outError("EffectDummy: Non-handled case for spell 13567 for triggered aura %u",m_triggeredByAuraSpell->Id);
                             break;
