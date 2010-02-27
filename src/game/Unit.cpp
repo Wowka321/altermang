@@ -7332,6 +7332,13 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
                 target = pVictim;
                 trigger_spell_id = 26470;
             }
+            // Blessing of Ancient Kings (Val'anyr, Hammer of Ancient Kings)
+            else if(auraSpellInfo->Id == 64411)
+            {
+                // This spell originally trigger 13567 - Dummy Trigger (vs dummy efect)
+                basepoints[0] = damage * 15 / 100;
+                target = pVictim;
+            }
             break;
         case SPELLFAMILY_WARRIOR:
             // Deep Wounds (replace triggered spells to directly apply DoT), dot spell have finilyflags
