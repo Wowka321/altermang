@@ -1590,6 +1590,9 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     (spellInfo_2->SpellIconID == 566 && spellInfo_1->SpellIconID == 2820))
                     return false;
             }
+            //Improved Mind Blast and Berserks
+            if ( spellInfo_1->Id == 48301 && spellInfo_2->SpellIconID == 95 ) 
+                return false;
             break;
         case SPELLFAMILY_DRUID:
             if( spellInfo_2->SpellFamilyName == SPELLFAMILY_DRUID )
