@@ -7395,6 +7395,19 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
                 //case 59288: break;                        // Infra-Green Shield
                 //case 59532: break;                        // Abandon Passengers on Poly
                 //case 59735: break:                        // Woe Strike
+                case 64568:                                 // Blood Reserve
+                {
+                    // Check health condition - should drop to less 35%
+                    if (!(10*(int32(GetHealth() - damage)) < 3.5 * GetMaxHealth()))
+                       return false;
+
+                    if (!roll_chance_f(50))
+                        return false;
+
+                    trigger_spell_id = 64569;
+                    basepoints[0] = triggerAmount;                              
+                    break;
+                }
                 case 67702:                                 // Death's Choice, Item - Coliseum 25 Normal Melee Trinket
                 {
                     float stat = 0.0f;
