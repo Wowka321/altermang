@@ -1094,6 +1094,9 @@ void Spell::DoAllEffectOnTarget(TargetInfo *target)
 
 void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
 {
+    if (m_caster->HasAura(5384)) // Dirty hack for Feign Death
+        return;
+
     if (!unit || !effectMask)
         return;
 
@@ -1840,11 +1843,11 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             {
                 case 64844:                                     // Divine Hymn
                     // target amount stored in parent spell dummy effect but hard to access
-                    FillRaidOrPartyHealthPriorityTargets(targetUnitMap, m_caster, m_caster, radius, 3, true, false, false);
+                    FillRaidOrPartyHealthPriorityTargets(targetUnitMap, m_caster, m_caster, radius, 3, true, false, true);
                     break;
                 case 64904:                                     // Hymn of Hope
                     // target amount stored in parent spell dummy effect but hard to access
-                    FillRaidOrPartyManaPriorityTargets(targetUnitMap, m_caster, m_caster, radius, 3, true, false, false);
+                    FillRaidOrPartyManaPriorityTargets(targetUnitMap, m_caster, m_caster, radius, 3, true, false, true);
                     break;
                 default:
                     FillAreaTargets(targetUnitMap, m_targets.m_destX, m_targets.m_destY, radius, PUSH_SELF_CENTER, SPELL_TARGETS_FRIENDLY);
@@ -5874,6 +5877,9 @@ SpellCastResult Spell::CheckItems()
                         return SPELL_FAILED_ERROR;
                     if (pEnchant->slot & ENCHANTMENT_CAN_SOULBOUND)
                         return SPELL_FAILED_NOT_TRADEABLE;
+                    // cannot replace vellum with scroll in trade slot
+                    if (isVellumTarget)
+                        return SPELL_FAILED_BAD_TARGETS;
                 }
                 break;
             }
@@ -5891,9 +5897,6 @@ SpellCastResult Spell::CheckItems()
                         return SPELL_FAILED_ERROR;
                     if (pEnchant->slot & ENCHANTMENT_CAN_SOULBOUND)
                         return SPELL_FAILED_NOT_TRADEABLE;
-                    // cannot replace vellum with scroll in trade slot
-                    if (isVellumTarget)
-                        return SPELL_FAILED_BAD_TARGETS;
                 }
                 break;
             }
