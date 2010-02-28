@@ -2707,6 +2707,9 @@ float Unit::CalculateLevelPenalty(SpellEntry const* spellProto) const
     if(spellProto->spellLevel <= 0)
         return 1.0f;
 
+    if (sSpellMgr.IsHighestRankOfSpell(spellProto->Id))
+        return 1.0f;
+
     float LvlPenalty = 0.0f;
 
     if(spellProto->spellLevel < 20)
@@ -7097,6 +7100,13 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
             {
                 // TODO: need more info (cooldowns/PPM)
                 triggered_spell_id = 61607;
+                break;
+            }
+            // Unholy Blight
+            if (dummySpell->Id == 49194)
+            {
+                basepoints[0] = triggerAmount * damage / 1000;
+                triggered_spell_id = 50536;
                 break;
             }
             // Vendetta
