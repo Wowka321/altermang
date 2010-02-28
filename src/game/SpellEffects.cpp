@@ -4228,6 +4228,7 @@ void Spell::DoSummonWild(SpellEffectIndex eff_idx, uint32 forceFaction)
         {
             summon->SetUInt32Value(UNIT_CREATED_BY_SPELL, m_spellInfo->Id);
             summon->SetCreatorGUID(m_caster->GetGUID());
+            summon->SetOwnerGUID(m_caster->GetGUID());
 
             if(forceFaction)
                 summon->setFaction(forceFaction);
