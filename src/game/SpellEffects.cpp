@@ -5775,6 +5775,64 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, damage, false);
                     break;
                 }
+                case 48025:                                 // Headless Horseman Mount
+                {
+                    if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    // Prevent stacking of mounts
+                    unitTarget->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+
+                    // Triggered spell id dependent of riding skill
+                    uint16 skillval = ((Player*)unitTarget)->GetSkillValue(SKILL_RIDING);
+                    uint32 zone, area;
+                    unitTarget->GetZoneAndAreaId(zone, area);
+                    switch (skillval)
+                    {
+                        case 75:
+                            unitTarget->CastSpell(unitTarget, 51621, true);
+                            return;
+                        case 150:
+                            unitTarget->CastSpell(unitTarget, 48024, true);
+                            return;
+                        case 225:
+                            if ((((Player*)unitTarget)->IsKnowHowFlyIn(((Player*)unitTarget)->GetMapId(), zone) && area != 4395 && 
+                               ((Player*)unitTarget)->GetMapId() == 571) || ((Player*)unitTarget)->GetMapId() == 530)
+                                unitTarget->CastSpell(unitTarget, 51617, true);
+                            else
+                                unitTarget->CastSpell(unitTarget, 48024, true);
+                            return;
+                        case 300:
+                            if ((((Player*)unitTarget)->IsKnowHowFlyIn(((Player*)unitTarget)->GetMapId(), zone) && area != 4395 &&
+                               ((Player*)unitTarget)->GetMapId() == 571) || ((Player*)unitTarget)->GetMapId() == 530)
+                                unitTarget->CastSpell(unitTarget, 48023, true);
+                            else
+                                unitTarget->CastSpell(unitTarget, 48024, true);
+                            return;
+                        default:
+                            break;
+                    }
+                    return;
+                }
+                //Big Blizzard Bear
+                case 58983:
+                {
+                    if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    // Prevent stacking of mounts
+                    unitTarget->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+
+                    // Triggered spell id dependent of riding skill
+                    if(uint16 skillval = ((Player*)unitTarget)->GetSkillValue(SKILL_RIDING))
+                    {
+                        if (skillval >= 150)
+                            unitTarget->CastSpell(unitTarget, 58999, true);
+                        else
+                            unitTarget->CastSpell(unitTarget, 58997, true);
+                    }
+                    return;
+                }
                 case 54729:                                 // Winged Steed of the Ebon Blade
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
