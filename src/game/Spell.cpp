@@ -1099,6 +1099,13 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
 
     Unit* realCaster = GetAffectiveCaster();
 
+    // Cyclone should be immuned when divine shield is active
+    if (m_spellInfo->Id == 33786 && unit->IsImmunedToDamage(GetSpellSchoolMask(m_spellInfo)))
+    {
+        realCaster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_IMMUNE);
+        return;
+    }
+
     // Recheck immune (only for delayed spells)
     if (m_spellInfo->speed && (
         unit->IsImmunedToDamage(GetSpellSchoolMask(m_spellInfo)) ||
@@ -1140,7 +1147,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
             }
 
             // not break stealth by cast targeting
-            if (!(m_spellInfo->AttributesEx & SPELL_ATTR_EX_NOT_BREAK_STEALTH))
+            if (!(m_spellInfo->AttributesEx & SPELL_ATTR_EX_NOT_BREAK_STEALTH) && m_spellInfo->Id != 51690 && m_spellInfo->Id != 53055)
                 unit->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);
 
             // can cause back attack (if detected), stealth removed at Spell::cast if spell break it
