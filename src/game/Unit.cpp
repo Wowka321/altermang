@@ -8223,6 +8223,57 @@ bool Unit::HandleOverrideClassScriptAuraProc(Unit *pVictim, uint32 /*damage*/, A
         case 6953:                                          // Warbringer
             RemoveAurasAtMechanicImmunity(IMMUNE_TO_ROOT_AND_SNARE_MASK,0,true);
             return true;
+        case 7282: // Crypt Fever and Ebon Plaguebringer
+        {
+            if (!procSpell || pVictim == this) // Here we prevent selfcasting C.F. and E.P.
+                return false;
+            switch (triggeredByAura->GetSpellProto()->Id)
+            {
+                case 49032: // C.F. Rank 1
+                {
+                    // C.F. rank 2-3 or E.P. any rank is already on victim -> do not allow cast
+                    if ( !(pVictim->HasAura(50509,EFFECT_INDEX_0) || pVictim->HasAura(50510,EFFECT_INDEX_0) ||
+                        pVictim->GetAura(SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT,SPELLFAMILY_DEATHKNIGHT,UI64LIT(0x80000000000))) )
+                        triggered_spell_id = 50508;
+                    break;
+                }
+                case 49631: // C.F. Rank 2
+                {
+                    // C.F. rank 3 or E.P. any rank is already on victim -> do not allow cast
+                    if ( !(pVictim->HasAura(50510,EFFECT_INDEX_0) ||
+                        pVictim->GetAura(SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT,SPELLFAMILY_DEATHKNIGHT,UI64LIT(0x80000000000))) )
+                        triggered_spell_id = 50509;
+                    break;
+                }
+                case 49632: // C.F. Rank 3
+                {
+                    // E.P. any rank is already on victim -> do not allow cast
+                    if ( !(pVictim->GetAura(SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT,SPELLFAMILY_DEATHKNIGHT,UI64LIT(0x80000000000))) )
+                        triggered_spell_id = 50510;
+                    break;
+                }
+                case 51099: // E.P. Rank 1
+                {
+                    // E.P. rank 2-3 is already on victim -> do not allow cast
+                    if ( !(pVictim->HasAura(51734,EFFECT_INDEX_0) || pVictim->HasAura(51735,EFFECT_INDEX_0)) )
+                        triggered_spell_id = 51726;
+                    break;
+                }
+                case 51160: // E.P. Rank 2
+                {
+                    // E.P. rank 3 is already on victim -> do not allow cast
+                    if ( !(pVictim->HasAura(51735,EFFECT_INDEX_0)) )
+                        triggered_spell_id = 51734;
+                    break;
+                }
+                case 51161: // E.P. Rank 3
+                {
+                    triggered_spell_id = 51735;
+                    break;
+                }
+            }
+            break;
+        }
         case 7010:                                          // Revitalize (rank 1)
         case 7011:                                          // Revitalize (rank 2)
         case 7012:                                          // Revitalize (rank 3)
