@@ -2068,11 +2068,11 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     // IsHostileTo check duel and controlled by enemy
                     if(Target && Target->GetSubGroup() == subgroup && !m_caster->IsHostileTo(Target))
                     {
-                        if( pTarget->IsWithinDistInMap(Target, radius) )
+                        if (Target->getLevel()+10 >= m_spellInfo->spellLevel && pTarget->IsWithinDistInMap(Target, radius))
                             targetUnitMap.push_back(Target);
 
                         if(Pet* pet = Target->GetPet())
-                            if( pTarget->IsWithinDistInMap(pet, radius) )
+                            if (pet->getLevel()+10 >= m_spellInfo->spellLevel && pTarget->IsWithinDistInMap(pet, radius))
                                 targetUnitMap.push_back(pet);
                     }
                 }
@@ -2087,7 +2087,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 targetUnitMap.push_back(pTarget);
 
                 if(Pet* pet = pTarget->GetPet())
-                    if( m_caster->IsWithinDistInMap(pet, radius) )
+                    if(pet->getLevel()+10 >= m_spellInfo->spellLevel && m_caster->IsWithinDistInMap(pet, radius))
                         targetUnitMap.push_back(pet);
             }
             break;
@@ -2189,9 +2189,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     Player* Target = itr->getSource();
 
                     // IsHostileTo check duel and controlled by enemy
-                    if( Target && targetPlayer->IsWithinDistInMap(Target, radius) &&
-                        targetPlayer->getClass() == Target->getClass() &&
-                        !m_caster->IsHostileTo(Target) )
+                    if( Target && Target->getLevel()+10 >= m_spellInfo->spellLevel && targetPlayer->getClass() == Target->getClass() && !m_caster->IsHostileTo(Target) && targetPlayer->IsWithinDistInMap(Target, radius) )
                     {
                         targetUnitMap.push_back(Target);
                     }
