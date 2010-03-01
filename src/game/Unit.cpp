@@ -5935,8 +5935,8 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     basepoints[0] += damage * triggerAmount/100;
 
                     // limit absorb amount
-                    if (basepoints[0] > pVictim->getLevel()*125)
-                        basepoints[0] = pVictim->getLevel()*125;
+                    if (basepoints[0] > (int32)pVictim->getLevel()*125)
+                        basepoints[0] = (int32)pVictim->getLevel()*125;
                     triggered_spell_id = 47753;
                     break;
                 }
