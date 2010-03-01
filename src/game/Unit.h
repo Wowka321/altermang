@@ -1585,7 +1585,7 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
 
         void SetInFront(Unit const* target);
         void SetFacingTo(float ori);
-        void SetFacingToObject(WorldObject* pObject) { SetFacingTo(GetAngle(pObject)); }
+        void SetFacingToObject(WorldObject* pObject);
 
         // Visibility system
         UnitVisibility GetVisibility() const { return m_Visibility; }
@@ -1848,6 +1848,8 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         uint32 m_regenTimer;
         uint32 m_lastManaUseTimer;
         float m_lastAuraProcRoll;
+
+        uint64 m_InteractionObject;
 
     private:
         void CleanupDeletedAuras();
