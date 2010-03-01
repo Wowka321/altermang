@@ -4650,6 +4650,14 @@ void Aura::HandleModMechanicImmunity(bool apply, bool /*Real*/)
     // Heroic Fury (remove Intercept cooldown)
     if(apply && GetId() == 60970 && m_target->GetTypeId() == TYPEID_PLAYER)
         ((Player*)m_target)->RemoveSpellCooldown(20252, true);
+    // Lichborne - apply shapeshift (only at first aura apply/remove)
+    if (GetId() == 49039 && GetEffIndex() == EFFECT_INDEX_0)
+    {
+        if (apply)
+            m_target->CastSpell(m_target,50397,true);
+        else
+            m_target->RemoveAurasDueToSpell(50397);
+    }
 }
 
 void Aura::HandleModMechanicImmunityMask(bool apply, bool /*Real*/)
