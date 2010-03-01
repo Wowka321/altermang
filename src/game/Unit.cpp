@@ -9641,6 +9641,16 @@ bool Unit::isSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                                 return true;
                         }
                         break;
+                    case SPELLFAMILY_DRUID:
+                        //Improved Insect Swarm
+                        if ((spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000004)) && spellProto->SpellIconID == 1485)
+                        {
+                            Aura *ImprovedAura =  HasAura(57849) ? GetAura(57849,EFFECT_INDEX_1) : HasAura(57850) ? GetAura(57850,EFFECT_INDEX_1) : HasAura(57851) ? GetAura(57851,EFFECT_INDEX_1) : NULL;
+                            if(ImprovedAura && pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE,SPELLFAMILY_DRUID,UI64LIT(0x0000000000000002)))
+                                crit_chance+=ImprovedAura->GetModifier()->m_amount;
+                           break;
+                        }
+                    break;
                 }
             }
             break;
