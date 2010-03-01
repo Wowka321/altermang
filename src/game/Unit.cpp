@@ -3071,18 +3071,36 @@ SpellMissInfo Unit::SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool 
     if (pVictim->GetTypeId()==TYPEID_UNIT && ((Creature*)pVictim)->IsInEvadeMode())
         return SPELL_MISS_EVADE;
 
+    // Mass Dispel bypass immunity
+    if (!(spell->SpellFamilyName == SPELLFAMILY_PRIEST && spell->SpellFamilyFlags == UI64LIT(0x8000000000)))
+	{
     // Check for immune
     if (pVictim->IsImmunedToSpell(spell))
+        {
+            if(spell->Id == 64382)
+            {
+                // remove immunity effects
+                pVictim->RemoveAurasDueToSpell(642); // Divine Shield
+                pVictim->RemoveAurasDueToSpell(1022); // Hand of Protection rank 1
+                pVictim->RemoveAurasDueToSpell(5599); // Hand of Protection rank 2
+                pVictim->RemoveAurasDueToSpell(10278); // Hand of Protection rank 3
+                pVictim->RemoveAurasDueToSpell(45438); // Ice Block
+            }
+            else
         return SPELL_MISS_IMMUNE;
+        }
 
     // All positive spells can`t miss
     // TODO: client not show miss log for this spells - so need find info for this in dbc and use it!
-    if (IsPositiveSpell(spell->Id))
+        if (IsPositiveSpell(spell->Id) && IsFriendlyTo(pVictim))
         return SPELL_MISS_NONE;
 
     // Check for immune
     if (pVictim->IsImmunedToDamage(GetSpellSchoolMask(spell)))
         return SPELL_MISS_IMMUNE;
+    }
+    else if (IsPositiveSpell(spell->Id) && IsFriendlyTo(pVictim))
+        return SPELL_MISS_NONE;
 
     // Try victim reflect spell
     if (canReflect)
