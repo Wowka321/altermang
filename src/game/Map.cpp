@@ -1717,6 +1717,10 @@ uint16 Map::GetAreaFlag(float x, float y, float z) const
     //       not provided correct areaflag with this hacks
     switch(areaflag)
     {
+        case 2407:                                           // Icecrown Citadel - The Frozen Halls
+            if (x > 5580.0f && x < 5700.0f && y > 1970.0f && y < 2145.0f && z > 790.0f)
+            areaflag = 3292;
+            break;
         // Acherus: The Ebon Hold (Plaguelands: The Scarlet Enclave)
         case 1984:                                          // Plaguelands: The Scarlet Enclave
         case 2076:                                          // Death's Breach (Plaguelands: The Scarlet Enclave)
