@@ -6604,7 +6604,7 @@ void Player::UpdateArea(uint32 newArea)
             SetFFAPvP(false);
     }
 
-    if(area->flags & AREA_FLAG_SANCTUARY)            // in sanctuary
+    if(area && area->flags & AREA_FLAG_SANCTUARY)            // in sanctuary
     {
         SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
         if(sWorld.IsFFAPvPRealm())
