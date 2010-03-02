@@ -5746,6 +5746,35 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     CastSpell(this, 28682, true, castItem, triggeredByAura);
                     return (procEx & PROC_EX_CRITICAL_HIT); // charge update only at crit hits, no hidden cooldowns
                 }
+               // Empowered Fire (mana regen)
+               case 12654:
+               {
+                   Unit* caster = triggeredByAura->GetCaster();
+                   // it should not be triggered from other ignites
+                   if (caster && pVictim && caster->GetGUID() == pVictim->GetGUID())
+                   {
+                       Unit::AuraList const& auras = caster->GetAurasByType(SPELL_AURA_ADD_FLAT_MODIFIER);
+                       for (Unit::AuraList::const_iterator i = auras.begin(); i != auras.end(); i++)
+                       {
+                           switch((*i)->GetId())
+                           {
+                               case 31656:
+                               case 31657:
+                               case 31658:
+                               {
+                                   if(roll_chance_i(int32((*i)->GetSpellProto()->procChance)))
+                                   {
+                                       caster->CastSpell(caster, 67545, true);
+                                       return true;
+                                   }
+                                   else
+                                       return false;
+                               }
+                           }
+                       } 
+                   }
+                   return false;
+               }
                 // Glyph of Ice Block
                 case 56372:
                 {
