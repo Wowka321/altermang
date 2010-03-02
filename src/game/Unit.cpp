@@ -6209,6 +6209,31 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     triggered_spell_id = 32747;
                     break;
                 }
+                // Glyph of Starfire
+                case 54845:
+                {
+                    triggered_spell_id = 54846;
+                    break;
+                }
+                // Glyph of Shred
+                case 54815:
+                {
+                    triggered_spell_id = 63974;
+                    break;
+                }
+                // Glyph of Rake
+                case 54821:
+                {
+                    if (procSpell->SpellVisual[0] == 750 && procSpell->EffectApplyAuraName[EFFECT_INDEX_1] == 3)
+                    {
+                        if (target->GetTypeId() == TYPEID_UNIT)
+                        {
+                            triggered_spell_id = 54820;
+                            break;
+                        }
+                    }
+                    return false;
+                }
                 // Glyph of Rejuvenation
                 case 54754:
                 {
@@ -6318,6 +6343,12 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                         return false;
 
                     triggered_spell_id = 32747;
+                    break;
+                }
+                // Glyph of Backstab
+                case 56800:
+                {
+                    triggered_spell_id = 63975;
                     break;
                 }
             }
