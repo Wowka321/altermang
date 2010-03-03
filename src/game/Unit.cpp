@@ -5816,14 +5816,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     pVictim->RemoveSpellsCausingAura(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
                     return true;
                 }
-                // Glyph of Icy Veins
-                case 56374:
-                {
-                    pVictim->RemoveSpellsCausingAura(SPELL_AURA_MOD_MELEE_HASTE, true, false);
-                    pVictim->RemoveSpellsCausingAura(SPELL_AURA_HASTE_SPELLS, true, false);
-                    pVictim->RemoveSpellsCausingAura(SPELL_AURA_MOD_DECREASE_SPEED);
-                    return true;
-                }
                 // Glyph of Drain Soul (warlock's glyph but has mage's spell family...)
                 case 58070:
                 {
