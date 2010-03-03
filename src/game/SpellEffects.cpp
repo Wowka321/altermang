@@ -1925,6 +1925,14 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                 return;
             }
+            // Improved Drain Soul trigger dummy damage
+            if (m_spellInfo->SpellIconID == 113)
+            {
+                Aura *ids = m_caster->GetDummyAura(m_spellInfo->Id);
+                if (ids)
+                    ids->GetModifier()->m_amount = damage;
+                return;
+            }
             break;
         }
         case SPELLFAMILY_PRIEST:
