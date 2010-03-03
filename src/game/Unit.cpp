@@ -5804,7 +5804,9 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     ((Player*)this)->RemoveSpellCategoryCooldown(35, true);
                     return true;
                 }
+                // Glyph of Succubus
                 // Glyph of Polymorph
+                case 56250:
                 case 56375:
                 {
                     if (!pVictim || !pVictim->isAlive())
