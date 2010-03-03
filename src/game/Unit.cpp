@@ -775,6 +775,10 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
 
         // find player: owner of controlled `this` or `this` itself maybe
         Player *player = GetCharmerOrOwnerPlayerOrPlayerItself();
+
+        // find owner of pVictim, used for creature cases, AI calls
+        Unit* pOwner = pVictim->GetCharmerOrOwner();
+
         if(pVictim->GetTypeId() == TYPEID_UNIT && ((Creature*)pVictim)->GetLootRecipient())
             player = ((Creature*)pVictim)->GetLootRecipient();
 
@@ -908,7 +912,11 @@ uint32 Unit::DealDamage(Unit *pVictim, uint32 damage, CleanDamage const* cleanDa
                         if (pSummoner->AI())
                             pSummoner->AI()->SummonedCreatureJustDied(cVictim);
             }
-
+            else if (pOwner && pOwner->GetTypeId() == TYPEID_UNIT)
+            {
+                if (((Creature*)pOwner)->AI())
+                    ((Creature*)pOwner)->AI()->SummonedCreatureJustDied(cVictim);
+            }
 
             // Dungeon specific stuff, only applies to players killing creatures
             if(cVictim->GetInstanceId())
@@ -3462,20 +3470,31 @@ void Unit::_UpdateSpells( uint32 time )
 
 void Unit::_UpdateAutoRepeatSpell()
 {
-    //check "realtime" interrupts
-    if ( (GetTypeId() == TYPEID_PLAYER && ((Player*)this)->isMoving()) || IsNonMeleeSpellCasted(false,false,true) )
+    bool isAutoShot = m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id == SPELL_ID_AUTOSHOT;
+
+    //check movement
+    if (GetTypeId() == TYPEID_PLAYER && ((Player*)this)->isMoving())
     {
         // cancel wand shoot
-        if(m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id != SPELL_ID_AUTOSHOT)
+        if(!isAutoShot)
             InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
-        m_AutoRepeatFirstCast = true;
+        // auto shot just waits
         return;
     }
 
-    //apply delay
-    if ( m_AutoRepeatFirstCast && getAttackTimer(RANGED_ATTACK) < 500 )
-        setAttackTimer(RANGED_ATTACK,500);
-    m_AutoRepeatFirstCast = false;
+    // check spell casts
+    if (IsNonMeleeSpellCasted(false, false, true))
+    {
+        // cancel wand shoot
+        if(!isAutoShot)
+        {
+            InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
+            return;
+        }
+        // auto shot is delayed by everythihng, except ranged(!) CURRENT_GENERIC_SPELL's -> recheck that
+        else if (!(m_currentSpells[CURRENT_GENERIC_SPELL] && m_currentSpells[CURRENT_GENERIC_SPELL]->IsRangedSpell()))
+            return;
+    }
 
     //castroutine
     if (isAttackReady(RANGED_ATTACK))
@@ -3521,7 +3540,6 @@ void Unit::SetCurrentCastedSpell( Spell * pSpell )
                 // break autorepeat if not Auto Shot
                 if (m_currentSpells[CURRENT_AUTOREPEAT_SPELL]->m_spellInfo->Id != SPELL_ID_AUTOSHOT)
                     InterruptSpell(CURRENT_AUTOREPEAT_SPELL);
-                m_AutoRepeatFirstCast = true;
             }
         } break;
 
@@ -3545,9 +3563,10 @@ void Unit::SetCurrentCastedSpell( Spell * pSpell )
                 // generic autorepeats break generic non-delayed and channeled non-delayed spells
                 InterruptSpell(CURRENT_GENERIC_SPELL,false);
                 InterruptSpell(CURRENT_CHANNELED_SPELL,false);
+                // special action: first cast delay
+                if ( getAttackTimer(RANGED_ATTACK) < 500 )
+                    setAttackTimer(RANGED_ATTACK,500);
             }
-            // special action: set first cast flag
-            m_AutoRepeatFirstCast = true;
         } break;
 
         default:
@@ -3567,14 +3586,14 @@ void Unit::SetCurrentCastedSpell( Spell * pSpell )
     pSpell->m_selfContainer = &(m_currentSpells[pSpell->GetCurrentContainer()]);
 }
 
-void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed)
+void Unit::InterruptSpell(CurrentSpellTypes spellType, bool withDelayed, bool sendAutoRepeatCancelToClient)
 {
     assert(spellType < CURRENT_MAX_SPELL);
 
     if (m_currentSpells[spellType] && (withDelayed || m_currentSpells[spellType]->getState() != SPELL_STATE_DELAYED) )
     {
         // send autorepeat cancel message for autorepeat spells
-        if (spellType == CURRENT_AUTOREPEAT_SPELL)
+        if (spellType == CURRENT_AUTOREPEAT_SPELL && sendAutoRepeatCancelToClient)
         {
             if(GetTypeId() == TYPEID_PLAYER)
                 ((Player*)this)->SendAutoRepeatCancel(this);
@@ -5785,7 +5804,9 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     ((Player*)this)->RemoveSpellCategoryCooldown(35, true);
                     return true;
                 }
+                // Glyph of Succubus
                 // Glyph of Polymorph
+                case 56250:
                 case 56375:
                 {
                     if (!pVictim || !pVictim->isAlive())
@@ -5793,6 +5814,14 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
 
                     pVictim->RemoveSpellsCausingAura(SPELL_AURA_PERIODIC_DAMAGE);
                     pVictim->RemoveSpellsCausingAura(SPELL_AURA_PERIODIC_DAMAGE_PERCENT);
+                    return true;
+                }
+                // Glyph of Icy Veins
+                case 56374:
+                {
+                    pVictim->RemoveSpellsCausingAura(SPELL_AURA_MOD_MELEE_HASTE, true, false);
+                    pVictim->RemoveSpellsCausingAura(SPELL_AURA_HASTE_SPELLS, true, false);
+                    pVictim->RemoveSpellsCausingAura(SPELL_AURA_MOD_DECREASE_SPEED);
                     return true;
                 }
                 // Glyph of Drain Soul (warlock's glyph but has mage's spell family...)
@@ -5913,6 +5942,18 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 // Damage counting
                 mod->m_amount-=damage;
                 return true;
+            }
+            // Improved Drain Soul
+            if (dummySpell->SpellIconID == 113)
+            {
+                Unit *caster = triggeredByAura->GetCaster();
+
+                if (!caster)
+                    return false;
+
+                basepoints[0] = caster->GetMaxPower(POWER_MANA)* dummySpell->EffectBasePoints[EFFECT_INDEX_2] / 100;
+                triggered_spell_id = 18371;
+                break;
             }
             // Fel Synergy
             if (dummySpell->SpellIconID == 3222)
@@ -7695,20 +7736,8 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
             break;
         case SPELLFAMILY_WARLOCK:
         {
-            // Pyroclasm
-            if (auraSpellInfo->SpellIconID == 1137)
-            {
-                switch (auraSpellInfo->Id)
-                {
-                    case 18096: trigger_spell_id = 18093; break; // Rank 1
-                    case 18073: trigger_spell_id = 63243; break; // Rank 2
-                    case 63245: trigger_spell_id = 63244; break; // Rank 3
-                    default:
-                        return false;
-                }
-            }
             // Drain Soul
-            else if (auraSpellInfo->SpellFamilyFlags & UI64LIT(0x0000000000004000))
+            if (auraSpellInfo->SpellFamilyFlags & UI64LIT(0x0000000000004000))
             {
                 Unit::AuraList const& mAddFlatModifier = GetAurasByType(SPELL_AURA_ADD_FLAT_MODIFIER);
                 for(Unit::AuraList::const_iterator i = mAddFlatModifier.begin(); i != mAddFlatModifier.end(); ++i)
@@ -9454,6 +9483,18 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     // Custom scripted damage
     switch(spellProto->SpellFamilyName)
     {
+        case SPELLFAMILY_PRIEST:
+        {
+            // Glyph of Shadow Word: Pain
+            if (spellProto->SpellFamilyFlags & UI64LIT(0x00000800000))
+            {
+                Aura *dummy = GetDummyAura(55687);
+                if ( dummy && pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x0000000000008000LL, 0, GetGUID()))
+                    DoneTotalMod *= (dummy->GetModifier()->m_amount+100.0f)/100.0f;
+            }
+
+            break;
+        }
         case SPELLFAMILY_MAGE:
         {
             // Ice Lance
@@ -9602,7 +9643,20 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
             coeff = bonus->direct_damage * LvlPenalty * stack;
 
         if (bonus->ap_bonus)
-            DoneTotal += int32(bonus->ap_bonus * GetTotalAttackPowerValue(BASE_ATTACK) * stack);
+        {
+           float total_bonus = bonus->ap_bonus;
+           if (GetTypeId() == TYPEID_PLAYER && ((Player*)this)->getClass() == CLASS_DEATH_KNIGHT)
+           {
+               uint32 impurity_id[5] = {49220,49633,49635,49636,49638};
+               for (int i = 0; i < 5; ++i)
+                   if (((Player*)this)->HasSpell(impurity_id[i]))
+                   {
+                       total_bonus += bonus->ap_bonus * (sSpellStore.LookupEntry(impurity_id[i])->EffectBasePoints[EFFECT_INDEX_0] + 1) / 100.0f;
+                       break;
+                   }
+           }
+           DoneTotal += int32(total_bonus * GetTotalAttackPowerValue(BASE_ATTACK) * stack);
+        }
 
         DoneTotal  += int32(DoneAdvertisedBenefit * coeff * SpellModSpellDamage);
         TakenTotal += int32(TakenAdvertisedBenefit * coeff);
@@ -10075,7 +10129,20 @@ int32 Unit::SpellHealingBonus(Unit *pVictim, SpellEntry const *spellProto, int32
             coeff = bonus->direct_damage * LvlPenalty * stack;
 
         if (bonus->ap_bonus)
-            DoneTotal += int32(bonus->ap_bonus * GetTotalAttackPowerValue(BASE_ATTACK) * stack);
+        {
+           float total_bonus = bonus->ap_bonus;
+           if (GetTypeId() == TYPEID_PLAYER && ((Player*)this)->getClass() == CLASS_DEATH_KNIGHT)
+           {
+               uint32 impurity_id[5] = {49220,49633,49635,49636,49638};
+               for (int i = 0; i < 5; ++i)
+                   if (((Player*)this)->HasSpell(impurity_id[i]))
+                   {
+                       total_bonus += bonus->ap_bonus * (sSpellStore.LookupEntry(impurity_id[i])->EffectBasePoints[EFFECT_INDEX_0] + 1) / 100.0f;
+                       break;
+                   }
+           }
+           DoneTotal += int32(total_bonus * GetTotalAttackPowerValue(BASE_ATTACK) * stack);
+        }
 
         DoneTotal  += int32(DoneAdvertisedBenefit * coeff * SpellModSpellDamage);
         TakenTotal += int32(TakenAdvertisedBenefit * coeff);
