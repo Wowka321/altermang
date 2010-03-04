@@ -3034,7 +3034,7 @@ void Spell::EffectApplyAura(SpellEffectIndex eff_idx)
         (unitTarget->GetTypeId() != TYPEID_PLAYER || !((Player*)unitTarget)->GetSession()->PlayerLoading()) )
         return;
 
-    Unit* caster = m_originalCaster ? m_originalCaster : m_caster;
+    Unit* caster = GetAffectiveCaster();
     if(!caster)
         return;
 
