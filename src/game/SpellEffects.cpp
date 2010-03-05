@@ -5573,6 +5573,24 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
         {
             switch(m_spellInfo->Id)
             {
+                case 69672:
+                {
+                   if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                       return;
+
+                   if (unitTarget->getRace() == ALLIANCE)
+                   {
+                       m_caster->CastSpell(m_caster,70973,true,NULL);
+                       m_caster->setFaction(67);
+                   }
+                   else
+                   {                                            
+                       m_caster->CastSpell(m_caster,70974,true,NULL);
+                       m_caster->setFaction(469);
+                   }
+
+                   return;
+                }
                 case 6962:
                 {
                     if(m_caster->GetTypeId() != TYPEID_PLAYER)

@@ -3572,6 +3572,7 @@ void Aura::HandleAuraTransform(bool apply, bool Real)
         // ApplyModifier(true) will reapply it if need
         m_target->setTransForm(0);
         m_target->SetDisplayId(m_target->GetNativeDisplayId());
+        ((Player*)m_target)->setFactionForRace(m_target->getRace());
 
         // re-aplly some from still active with preference negative cases
         Unit::AuraList const& otherTransforms = m_target->GetAurasByType(SPELL_AURA_TRANSFORM);
