@@ -3275,7 +3275,19 @@ void Spell::EffectHeal(SpellEffectIndex /*eff_idx*/)
 
             addhealth += tickheal * tickcount;
         }
+        // Chain Heal consumes Riptide
+        else if(m_spellInfo->SpellFamilyName == SPELLFAMILY_SHAMAN && m_spellInfo->SpellFamilyFlags == UI64LIT(0x100))
+        {
+            addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, addhealth, HEAL);
+
+            if (Aura *riptide = unitTarget->GetAura(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_SHAMAN, 0, 0x10, m_caster->GetGUID()))
+            {
+                addhealth += addhealth * riptide->GetSpellProto()->EffectBasePoints[EFFECT_INDEX_2] / 100;
+                unitTarget->RemoveAurasDueToSpell(riptide->GetId());
+            }
+        }
         else
+
             addhealth = caster->SpellHealingBonus(unitTarget, m_spellInfo, addhealth, HEAL);
 
         m_healing+=addhealth;
