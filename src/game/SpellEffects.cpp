@@ -5581,12 +5581,13 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                    if (unitTarget->getRace() == ALLIANCE)
                    {
                        m_caster->CastSpell(m_caster,70973,true,NULL);
-                       m_caster->setFaction(67);
+                       m_caster->CastSpell(m_caster,42334,true,NULL);
+                       
                    }
                    else
                    {                                            
                        m_caster->CastSpell(m_caster,70974,true,NULL);
-                       m_caster->setFaction(469);
+                       m_caster->CastSpell(m_caster,42335,true,NULL);
                    }
 
                    return;

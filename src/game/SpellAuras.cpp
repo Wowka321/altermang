@@ -3572,7 +3572,6 @@ void Aura::HandleAuraTransform(bool apply, bool Real)
         // ApplyModifier(true) will reapply it if need
         m_target->setTransForm(0);
         m_target->SetDisplayId(m_target->GetNativeDisplayId());
-        ((Player*)m_target)->setFactionForRace(m_target->getRace());
 
         // re-aplly some from still active with preference negative cases
         Unit::AuraList const& otherTransforms = m_target->GetAurasByType(SPELL_AURA_TRANSFORM);
@@ -3635,6 +3634,11 @@ void Aura::HandleForceReaction(bool apply, bool Real)
     // stop fighting if at apply forced rank friendly or at remove real rank friendly
     if (apply && faction_rank >= REP_FRIENDLY || !apply && player->GetReputationRank(faction_id) >= REP_FRIENDLY)
         player->StopAttackFaction(faction_id);
+
+    if (apply && (faction_id == 67 || faction_id == 469))
+       player->setFaction(faction_id);
+    else
+       player->setFactionForRace(player->getRace());
 }
 
 void Aura::HandleAuraModSkill(bool apply, bool /*Real*/)
