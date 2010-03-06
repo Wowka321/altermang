@@ -7652,7 +7652,14 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
                         return false;
 
                     trigger_spell_id = 64569;
-                    basepoints[0] = triggerAmount;                              
+                    basepoints[0] = triggerAmount;
+                    break;
+                }                              
+                case 64415:                                 // // Val'anyr Hammer of Ancient Kings - Equip Effect
+                {
+                    // for DOT procs
+                    if (!IsPositiveSpell(procSpell->Id))
+                        return false;
                     break;
                 }
                 case 67702:                                 // Death's Choice, Item - Coliseum 25 Normal Melee Trinket
