@@ -2526,7 +2526,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 if (!unitTarget)
                     return;
 
-                unitTarget->KnockBackFrom(m_caster, -float(unitTarget->GetDistance2d(m_caster)), 10.0f);
+                unitTarget->KnockBackFrom(m_caster, -float(unitTarget->GetDistance2d(m_caster)), 6.0f);
                 m_caster->CastSpell(unitTarget, 49560, true);
                 return;
             }
@@ -2847,21 +2847,7 @@ void Spell::EffectJump(SpellEffectIndex eff_idx)
         return;
     }
 
-    //m_caster->NearTeleportTo(x, y, z, o, true);
-    float speedZ;
-    if(m_spellInfo->EffectMiscValue[eff_idx])
-        speedZ = float(m_spellInfo->EffectMiscValue[eff_idx])/10;
-    else if(m_spellInfo->EffectMiscValueB[eff_idx])
-        speedZ = float(m_spellInfo->EffectMiscValueB[eff_idx])/10;
-    else
-        speedZ = 10.0f;
-    float speedXY = m_caster->GetDistance2d(x, y) * 10.0f / speedZ;
-
-    SplineFlags moveFlag = SplineFlags(SPLINEFLAG_TRAJECTORY | SPLINEFLAG_WALKMODE);
-
-    uint32 time = speedZ * 100;
-
-    m_caster->SendMonsterMove(x,y,z, SPLINETYPE_NORMAL, moveFlag, time);
+    m_caster->NearTeleportTo(x, y, z, o, true);
 }
 
 void Spell::EffectTeleportUnits(SpellEffectIndex eff_idx)
