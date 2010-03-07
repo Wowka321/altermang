@@ -264,6 +264,9 @@ void Spell::EffectInstaKill(SpellEffectIndex /*eff_idx*/)
     if( !unitTarget || !unitTarget->isAlive() )
         return;
 
+    if(m_spellInfo->Id==52479 && unitTarget->GetTypeId()==TYPEID_PLAYER)
+        return;
+
     // Demonic Sacrifice
     if(m_spellInfo->Id==18788 && unitTarget->GetTypeId()==TYPEID_UNIT)
     {
