@@ -232,7 +232,7 @@ bool WorldSession::Update(uint32 /*diff*/)
                         LogUnprocessedTail(packet);
                     break;
                 case STATUS_NEVER:
-                    sLog.outError( "SESSION: received not allowed opcode %s (0x%.4X)",
+                    sLog.outDebug( "SESSION: received not allowed opcode %s (0x%.4X)",
                         LookupOpcodeName(packet->GetOpcode()),
                         packet->GetOpcode());
                     break;
@@ -526,7 +526,7 @@ const char * WorldSession::GetMangosString( int32 entry ) const
 
 void WorldSession::Handle_NULL( WorldPacket& recvPacket )
 {
-    sLog.outError( "SESSION: received unhandled opcode %s (0x%.4X)",
+    sLog.outDebug( "SESSION: received unhandled opcode %s (0x%.4X)",
         LookupOpcodeName(recvPacket.GetOpcode()),
         recvPacket.GetOpcode());
 }
