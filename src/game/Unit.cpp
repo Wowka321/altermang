@@ -8092,11 +8092,10 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
                 basepoints[0] = triggerAmount * damage / 100;
                 trigger_spell_id = 50475;
             }
-            //Don't proc any spell on self
-            if (procSpell->Id == 45524)
+            else if(auraSpellInfo->Id == 49657)
             {
-                if(pVictim == this)
-                   return false;
+                if(pVictim == this) // Temp fix, somehow its twice-procced from Chains of Ice
+                    return false;
             }
             break;
         }
