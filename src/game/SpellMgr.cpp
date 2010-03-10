@@ -1556,16 +1556,9 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             if( spellInfo_2->Id == 132 && spellInfo_1->SpellIconID == 209 && spellInfo_1->SpellVisual[0] == 968 )
                 return false;
 
-            // Arcane Intellect and Dalaran Intellect
-            if( spellInfo_1->Id == 61024 && spellInfo_2->SpellIconID == 125 ||
-                spellInfo_2->Id == 61024 && spellInfo_1->SpellIconID == 125 ||
-                spellInfo_1->Id == 61024 && spellInfo_2->SpellIconID == 1694 ||
-                spellInfo_2->Id == 61024 && spellInfo_1->SpellIconID == 1694 ||
-                spellInfo_1->Id == 61316 && spellInfo_2->SpellIconID == 125 ||
-                spellInfo_2->Id == 61316 && spellInfo_1->SpellIconID == 125 ||
-                spellInfo_1->Id == 61316 && spellInfo_2->SpellIconID == 1694 ||
-                spellInfo_2->Id == 61316 && spellInfo_1->SpellIconID == 1694 )
-                return true;                        // can't be stacked
+            // Arcane Intellect and Dalaran Intellect. Can't stack
+            if( (spellInfo_1->SpellFamilyFlags & UI64LIT(0x400)) && (spellInfo_2->SpellFamilyFlags & UI64LIT(0x400)) )
+                return true;
 
             // Combustion and Fire Protection Aura (multi-family check)
             if( spellInfo_1->Id == 11129 && spellInfo_2->SpellIconID == 33 && spellInfo_2->SpellVisual[0] == 321 )
