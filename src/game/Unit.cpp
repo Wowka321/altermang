@@ -8092,6 +8092,12 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
                 basepoints[0] = triggerAmount * damage / 100;
                 trigger_spell_id = 50475;
             }
+            //Don't proc any spell on self
+            if (procSpell->Id == 45524)
+            {
+                if(pVictim == this)
+                   return false;
+            }
             break;
         }
         default:
