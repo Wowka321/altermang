@@ -973,6 +973,19 @@ void Pet::UpdateMaxHealth()
     float stamina = GetStat(STAT_STAMINA) - GetCreateStat(STAT_STAMINA);
     float multiplicator;
 
+    // Wild Hunt
+    if(Unit* owner = GetOwner())
+    if(owner->GetTypeId() == TYPEID_PLAYER)
+    if(getPetType() == HUNTER_PET)
+    {
+            if(HasSpell(62762))
+               if(SpellEntry const* whEntry = sSpellStore.LookupEntry(62762))
+                 stamina = stamina + owner->GetStat(STAT_STAMINA) * (whEntry->EffectBasePoints[EFFECT_INDEX_0]+1) / 100;
+            if(HasSpell(62758))
+               if(SpellEntry const* whEntry = sSpellStore.LookupEntry(62758))
+                 stamina = stamina + owner->GetStat(STAT_STAMINA) * (whEntry->EffectBasePoints[EFFECT_INDEX_0]+1) / 100;
+    }
+
     // nesocips warlock pet stats calculation
     switch(GetEntry())
     {
@@ -1038,6 +1051,13 @@ void Pet::UpdateAttackPowerAndDamage(bool ranged)
         if(getPetType() == HUNTER_PET)                      //hunter pets benefit from owner's attack power
         {
             bonusAP = owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.22f;
+            // Wild Hunt
+            if(HasSpell(62762))
+               if(SpellEntry const* whEntry = sSpellStore.LookupEntry(62762))
+                 bonusAP = bonusAP + owner->GetTotalAttackPowerValue(RANGED_ATTACK) * (whEntry->EffectBasePoints[EFFECT_INDEX_1]+1) / 100;
+            if(HasSpell(62758))
+               if(SpellEntry const* whEntry = sSpellStore.LookupEntry(62758))
+                 bonusAP = bonusAP + owner->GetTotalAttackPowerValue(RANGED_ATTACK) * (whEntry->EffectBasePoints[EFFECT_INDEX_1]+1) / 100;
             SetBonusDamage( int32(owner->GetTotalAttackPowerValue(RANGED_ATTACK) * 0.1287f));
         }
         //ghouls benefit from deathknight's attack power

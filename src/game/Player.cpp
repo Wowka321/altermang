@@ -17794,6 +17794,7 @@ void Player::PetSpellInitialize()
         data << uint32(cooldown);                           // category cooldown
     }
 
+    pet->UpdateAllStats();
     GetSession()->SendPacket(&data);
 }
 
