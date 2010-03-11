@@ -9483,18 +9483,6 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
     // Custom scripted damage
     switch(spellProto->SpellFamilyName)
     {
-        case SPELLFAMILY_PRIEST:
-        {
-            // Glyph of Shadow Word: Pain
-            if (spellProto->SpellFamilyFlags & UI64LIT(0x00000800000))
-            {
-                Aura *dummy = GetDummyAura(55687);
-                if ( dummy && pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x0000000000008000LL, 0, GetGUID()))
-                    DoneTotalMod *= (dummy->GetModifier()->m_amount+100.0f)/100.0f;
-            }
-
-            break;
-        }
         case SPELLFAMILY_MAGE:
         {
             // Ice Lance
@@ -9542,6 +9530,13 @@ uint32 Unit::SpellDamageBonus(Unit *pVictim, SpellEntry const *spellProto, uint3
         }
         case SPELLFAMILY_PRIEST:
         {
+            // Glyph of Shadow Word: Pain
+            if (spellProto->SpellFamilyFlags & UI64LIT(0x00000800000))
+            {
+                Aura *dummy = GetDummyAura(55687);
+                if ( dummy && pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, 0x0000000000008000LL, 0, GetGUID()))
+                    DoneTotalMod *= (dummy->GetModifier()->m_amount+100.0f)/100.0f;
+            }
             // Glyph of Smite
             if (spellProto->SpellFamilyFlags & UI64LIT(0x00000080))
             {
