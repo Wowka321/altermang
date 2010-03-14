@@ -481,6 +481,9 @@ void Pet::setDeathState(DeathState s)                       // overwrite virtual
             if(!mapEntry || (mapEntry->map_type != MAP_ARENA && mapEntry->map_type != MAP_BATTLEGROUND))
                 ModifyPower(POWER_HAPPINESS, -HAPPINESS_LEVEL_SIZE);
 
+            if( HasSpell(55709) && GetOwner())
+                GetOwner()->CastSpell(GetOwner(), 54114, false);
+
             SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
         }
     }
@@ -958,6 +961,7 @@ bool Pet::InitStatsForLevel(uint32 petlevel, Unit* owner)
 
                 // remove elite bonuses included in DB values
                 SetCreateHealth( uint32(((float(cinfo->maxhealth) / cinfo->maxlevel) / (1 + 2 * cinfo->rank)) * petlevel) );
+                setPowerType(POWER_FOCUS);
 
                 SetCreateStat(STAT_STRENGTH, 22);
                 SetCreateStat(STAT_AGILITY, 22);
