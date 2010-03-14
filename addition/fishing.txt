@@ -1,0 +1,1127 @@
+diff --git a/contrib/extractor/System.cpp b/contrib/extractor/System.cpp
+index 5f2885f..d815cd4 100644
+--- a/contrib/extractor/System.cpp
++++ b/contrib/extractor/System.cpp
+@@ -17,6 +17,7 @@
+ #include "loadlib/adt.h"
+ #include "loadlib/wdt.h"
+ #include <fcntl.h>
++#include "wmoJuicer.h"
+ 
+ #if defined( __GNUC__ )
+     #define _open   open
+@@ -47,6 +48,7 @@ uint16 *LiqType;
+ char output_path[128] = ".";
+ char input_path[128] = ".";
+ uint32 maxAreaId = 0;
++wmoJuicer* juicer;
+ 
+ //**************************************************
+ // Extractor options
+@@ -270,76 +272,6 @@ void ReadLiquidTypeTableDBC()
+     printf("Done! (%u LiqTypes loaded)\n", LiqType_count);
+ }
+ 
+-//
+-// Adt file convertor function and data
+-//
+-
+-// Map file format data
+-static char const* MAP_MAGIC         = "MAPS";
+-static char const* MAP_VERSION_MAGIC = "v1.1";
+-static char const* MAP_AREA_MAGIC    = "AREA";
+-static char const* MAP_HEIGHT_MAGIC  = "MHGT";
+-static char const* MAP_LIQUID_MAGIC  = "MLIQ";
+-
+-struct map_fileheader
+-{
+-    uint32 mapMagic;
+-    uint32 versionMagic;
+-    uint32 buildMagic;
+-    uint32 areaMapOffset;
+-    uint32 areaMapSize;
+-    uint32 heightMapOffset;
+-    uint32 heightMapSize;
+-    uint32 liquidMapOffset;
+-    uint32 liquidMapSize;
+-};
+-
+-#define MAP_AREA_NO_AREA      0x0001
+-
+-struct map_areaHeader
+-{
+-    uint32 fourcc;
+-    uint16 flags;
+-    uint16 gridArea;
+-};
+-
+-#define MAP_HEIGHT_NO_HEIGHT  0x0001
+-#define MAP_HEIGHT_AS_INT16   0x0002
+-#define MAP_HEIGHT_AS_INT8    0x0004
+-
+-struct map_heightHeader
+-{
+-    uint32 fourcc;
+-    uint32 flags;
+-    float  gridHeight;
+-    float  gridMaxHeight;
+-};
+-
+-#define MAP_LIQUID_TYPE_NO_WATER    0x00
+-#define MAP_LIQUID_TYPE_WATER       0x01
+-#define MAP_LIQUID_TYPE_OCEAN       0x02
+-#define MAP_LIQUID_TYPE_MAGMA       0x04
+-#define MAP_LIQUID_TYPE_SLIME       0x08
+-
+-#define MAP_LIQUID_TYPE_DARK_WATER  0x10
+-#define MAP_LIQUID_TYPE_WMO_WATER   0x20
+-
+-
+-#define MAP_LIQUID_NO_TYPE    0x0001
+-#define MAP_LIQUID_NO_HEIGHT  0x0002
+-
+-struct map_liquidHeader
+-{
+-    uint32 fourcc;
+-    uint16 flags;
+-    uint16 liquidType;
+-    uint8  offsetX;
+-    uint8  offsetY;
+-    uint8  width;
+-    uint8  height;
+-    float  liquidLevel;
+-};
+-
+ float selectUInt8StepStore(float maxDiff)
+ {
+     return 255 / maxDiff;
+@@ -377,8 +309,9 @@ bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x, uint32
+         return false;
+     }
+ 
+-    memset(liquid_show, 0, sizeof(liquid_show));
+-    memset(liquid_type, 0, sizeof(liquid_type));
++    //memset(liquid_show, 0, sizeof(liquid_show));
++    //memset(liquid_type, 0, sizeof(liquid_type));
++	juicer->getLiquid(cell_x,cell_y, &liquid_type[0][0], &liquid_show[0][0], &liquid_height[0][0]);
+ 
+     // Prepare map header
+     map_fileheader map;
+@@ -672,9 +605,17 @@ bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x, uint32
+                     {
+                         int cx = j*ADT_CELL_SIZE + x + h->xOffset;
+                         if (height)
+-                            liquid_height[cy][cx] = height[pos];
++						{
++							float high=height[pos];
++							if (high> liquid_height[cy][cx])    //Just incase there happens to be a city floating in air over a river ;)
++								liquid_height[cy][cx] = high;
++						}
+                         else
+-                            liquid_height[cy][cx] = h->heightLevel1;
++						{
++							float high= h->heightLevel1;
++							if (high> liquid_height[cy][cx])
++								liquid_height[cy][cx] = high;
++						}
+                         pos++;
+                     }
+                 }
+@@ -730,7 +671,9 @@ bool ConvertADT(char *filename, char *filename2, int cell_y, int cell_x, uint32
+                     for (int x=0; x<= ADT_CELL_SIZE; x++)
+                     {
+                         int cx = j*ADT_CELL_SIZE + x;
+-                        liquid_height[cy][cx] = liquid->liquid[y][x].height;
++						float high=liquid->liquid[y][x].height;
++						if (high> liquid_height[cy][cx])
++                            liquid_height[cy][cx] = high;
+                     }
+                 }
+             }
+@@ -885,7 +828,7 @@ void ExtractMapsFromMpq(uint32 build)
+     std::string path = output_path;
+     path += "/maps/";
+     CreateDir(path);
+-
++	juicer=new wmoJuicer(path.c_str());
+     printf("Convert map files\n");
+     for(uint32 z = 0; z < map_count; ++z)
+     {
+@@ -898,7 +841,7 @@ void ExtractMapsFromMpq(uint32 build)
+ //            printf("Error loading %s map wdt data\n", map_ids[z].name);
+             continue;
+         }
+-
++		juicer->Juice(map_ids[z].name, map_ids[z].id, &wdt);
+         for(uint32 y = 0; y < WDT_MAP_SIZE; ++y)
+         {
+             for(uint32 x = 0; x < WDT_MAP_SIZE; ++x)
+diff --git a/contrib/extractor/VC80_ad.vcproj b/contrib/extractor/VC80_ad.vcproj
+index 86cca46..e29d625 100644
+--- a/contrib/extractor/VC80_ad.vcproj
++++ b/contrib/extractor/VC80_ad.vcproj
+@@ -310,10 +310,6 @@
+ 				RelativePath=".\mpq_libmpq.h"
+ 				>
+ 			</File>
+-			<File
+-				RelativePath=".\loadlib\wdt.h"
+-				>
+-			</File>
+ 			<Filter
+ 				Name="libmpq"
+ 				>
+@@ -330,10 +326,6 @@
+ 					>
+ 				</File>
+ 				<File
+-					RelativePath=".\loadlib\loadlib.h"
+-					>
+-				</File>
+-				<File
+ 					RelativePath=".\libmpq\mpq.h"
+ 					>
+ 				</File>
+@@ -342,10 +334,6 @@
+ 					>
+ 				</File>
+ 				<File
+-					RelativePath=".\libmpq\wdt.h"
+-					>
+-				</File>
+-				<File
+ 					RelativePath=".\libmpq\zconf.h"
+ 					>
+ 				</File>
+diff --git a/contrib/extractor/VC90_ad.vcproj b/contrib/extractor/VC90_ad.vcproj
+index 9317a60..9d346dc 100644
+--- a/contrib/extractor/VC90_ad.vcproj
++++ b/contrib/extractor/VC90_ad.vcproj
+@@ -287,6 +287,10 @@
+ 				RelativePath=".\loadlib\wdt.cpp"
+ 				>
+ 			</File>
++			<File
++				RelativePath=".\wmoJuicer.cpp"
++				>
++			</File>
+ 		</Filter>
+ 		<Filter
+ 			Name="Header Files"
+@@ -313,10 +317,6 @@
+ 				>
+ 			</File>
+ 			<File
+-				RelativePath=".\loadlib\loadlib.h"
+-				>
+-			</File>
+-			<File
+ 				RelativePath=".\libmpq\mpq.h"
+ 				>
+ 			</File>
+@@ -332,6 +332,10 @@
+ 				RelativePath=".\loadlib\wdt.h"
+ 				>
+ 			</File>
++			<File
++				RelativePath=".\wmoJuicer.h"
++				>
++			</File>
+ 		</Filter>
+ 	</Files>
+ 	<Globals>
+diff --git a/contrib/extractor/loadlib/adt.h b/contrib/extractor/loadlib/adt.h
+index 725c5b9..8007ef5 100644
+--- a/contrib/extractor/loadlib/adt.h
++++ b/contrib/extractor/loadlib/adt.h
+@@ -15,6 +15,65 @@ enum LiquidType
+     LIQUID_TYPE_SLIME = 3
+ };
+ 
++
++//
++// Adt file convertor function and data
++//
++
++// Map file format data
++static char const* MAP_MAGIC         = "MAPS";
++static char const* MAP_VERSION_MAGIC = "v1.1";
++static char const* MAP_AREA_MAGIC    = "AREA";
++static char const* MAP_HEIGHT_MAGIC  = "MHGT";
++static char const* MAP_LIQUID_MAGIC  = "MLIQ";
++
++struct map_fileheader{
++    uint32 mapMagic;
++    uint32 versionMagic;
++    uint32 buildMagic;
++    uint32 areaMapOffset;
++    uint32 areaMapSize;
++    uint32 heightMapOffset;
++    uint32 heightMapSize;
++    uint32 liquidMapOffset;
++    uint32 liquidMapSize;
++};
++
++#define MAP_AREA_NO_AREA      0x0001
++struct map_areaHeader{
++    uint32 fourcc;
++    uint16 flags;
++    uint16 gridArea;
++};
++
++#define MAP_HEIGHT_NO_HEIGHT   0x0001
++#define MAP_HEIGHT_AS_INT16   0x0002
++#define MAP_HEIGHT_AS_INT8    0x0004
++
++struct map_heightHeader{
++    uint32 fourcc;
++    uint32 flags;
++    float  gridHeight;
++    float  gridMaxHeight;
++};
++
++
++
++
++#define MAP_LIQUID_NO_TYPE    0x0001
++#define MAP_LIQUID_NO_HEIGHT   0x0002
++
++struct map_liquidHeader{
++    uint32 fourcc;
++    uint16 flags;
++    uint16 liquidType;
++    uint8  offsetX;
++    uint8  offsetY;
++    uint8  width;
++    uint8  height;
++    float  liquidLevel;
++};
++
+ //**************************************************************************************
+ // ADT file class
+ //**************************************************************************************
+@@ -155,7 +214,7 @@ public:
+ };
+ 
+ #define ADT_LIQUID_HEADER_FULL_LIGHT   0x01
+-#define ADT_LIQUID_HEADER_NO_HIGHT     0x02
++#define ADT_LIQUID_HEADER_NO_HEIGHT     0x02
+ 
+ struct adt_liquid_header{
+     uint16 liquidType;             // Index from LiquidType.dbc
+@@ -199,7 +258,7 @@ public:
+ 
+     float *getLiquidHeightMap(adt_liquid_header *h) 
+     {
+-        if (h->formatFlags & ADT_LIQUID_HEADER_NO_HIGHT)
++        if (h->formatFlags & ADT_LIQUID_HEADER_NO_HEIGHT)
+             return 0;
+         if (h->offsData2b)
+             return (float *)((uint8*)this + 8 + h->offsData2b);
+@@ -212,7 +271,7 @@ public:
+             return 0;
+         if (h->offsData2b)
+         {
+-            if (h->formatFlags & ADT_LIQUID_HEADER_NO_HIGHT)
++            if (h->formatFlags & ADT_LIQUID_HEADER_NO_HEIGHT)
+                 return (uint8 *)((uint8*)this + 8 + h->offsData2b);
+             return (uint8 *)((uint8*)this + 8 + h->offsData2b + (h->width+1)*(h->height+1)*4);
+         }
+@@ -225,7 +284,7 @@ public:
+             return 0;
+         if (h->offsData2b)
+         {
+-            if (h->formatFlags & ADT_LIQUID_HEADER_NO_HIGHT)
++            if (h->formatFlags & ADT_LIQUID_HEADER_NO_HEIGHT)
+                 return (uint32 *)((uint8*)this + 8 + h->offsData2b);
+             return (uint32 *)((uint8*)this + 8 + h->offsData2b + (h->width+1)*(h->height+1)*4);
+         }
+@@ -242,6 +301,54 @@ public:
+ 
+ };
+ 
++
++//
++// Adt wmo chunck
++//
++class adt_MWMO
++{
++    union{
++        uint32 fcc;
++        char   fcc_txt[4];
++    };
++public:
++	uint32 size;
++
++	uint32 pad;
++	uint8 *getWMO(uint32 idz){return ((uint8 *)&pad+(idz)) ;}
++};
++
++#ifndef MAP_OBJ
++#define MAP_OBJ
++
++struct SMMapObjDef // 03-29-2005 By ObscuR
++{
++uint32 nameId;
++uint32 uniqueId;
++float pos[3];
++float rot[3];
++float extents[6];
++uint32 flags;
++uint32 doodadSet;
++uint16 nameSet;
++};
++
++#endif
++
++class adt_MODF
++{
++    union{
++        uint32 fcc;
++        char   fcc_txt[4];
++    };
++    uint32 size;
++public:
++
++
++	SMMapObjDef data;
++	int getCount() { return (size-4)/sizeof(SMMapObjDef);}
++};
++
+ //
+ // Adt file header chunk
+ //
+@@ -273,6 +380,8 @@ public:
+     bool prepareLoadedData();
+     adt_MCIN *getMCIN(){ return (adt_MCIN *)((uint8 *)&pad+offsMCIN);}
+     adt_MH2O *getMH2O(){ return offsMH2O ? (adt_MH2O *)((uint8 *)&pad+offsMH2O) : 0;}
++	adt_MWMO *getMWMO(){ return offsMapObejcts ? (adt_MWMO *)((uint8 *)&pad+offsMapObejcts) : 0;}
++	adt_MODF *getMODF(){ return offsObjectsDef ? (adt_MODF *)((uint8 *)&pad+offsObjectsDef) : 0;}
+ 
+ };
+ 
+diff --git a/contrib/extractor/loadlib/loadlib.h b/contrib/extractor/loadlib/loadlib.h
+index 5373175..6acfd10 100644
+--- a/contrib/extractor/loadlib/loadlib.h
++++ b/contrib/extractor/loadlib/loadlib.h
+@@ -3,28 +3,26 @@
+ 
+ #ifdef WIN32
+ typedef __int64            int64;
+-typedef __int32            int32;
+-typedef __int16            int16;
+-typedef __int8             int8;
++typedef long               int32;
++typedef short              int16;
++typedef char               int8;
+ typedef unsigned __int64   uint64;
+-typedef unsigned __int32   uint32;
+-typedef unsigned __int16   uint16;
+-typedef unsigned __int8    uint8;
++typedef unsigned long      uint32;
++typedef unsigned short     uint16;
++typedef unsigned char      uint8;
+ #else
+ #include <stdint.h>
+ #ifndef uint64_t 
+-#ifdef __linux__
+ #include <linux/types.h> 
+ #endif
+-#endif
+ typedef int64_t            int64;
+-typedef int32_t            int32;
+-typedef int16_t            int16;
+-typedef int8_t             int8;
++typedef long               int32;
++typedef short              int16;
++typedef char               int8;
+ typedef uint64_t           uint64;
+-typedef uint32_t           uint32;
+-typedef uint16_t           uint16;
+-typedef uint8_t            uint8;
++typedef unsigned long      uint32;
++typedef unsigned short     uint16;
++typedef unsigned char      uint8;
+ #endif
+ 
+ #define FILE_FORMAT_VERSION    18
+diff --git a/contrib/extractor/loadlib/wdt.cpp b/contrib/extractor/loadlib/wdt.cpp
+index dedefbb..951d119 100644
+--- a/contrib/extractor/loadlib/wdt.cpp
++++ b/contrib/extractor/loadlib/wdt.cpp
+@@ -58,5 +58,9 @@ bool WDT_file::prepareLoadedData()
+     wmo = (wdt_MWMO *)((uint8*)main+ main->size+8);
+     if (!wmo->prepareLoadedData())
+         return false;
++	if (wmo->size >0)
++		modf = (wdt_MODF *)((uint8*)wmo+ wmo->size+8);
++	else
++		modf=0;
+     return true;
+ }
+\ No newline at end of file
+diff --git a/contrib/extractor/loadlib/wdt.h b/contrib/extractor/loadlib/wdt.h
+index fcee8ac..e712e24 100644
+--- a/contrib/extractor/loadlib/wdt.h
++++ b/contrib/extractor/loadlib/wdt.h
+@@ -14,9 +14,44 @@ class wdt_MWMO{
+     };
+ public:
+     uint32 size;
++
++	uint32 pad;
++
++	uint8 *getWMO(uint32 idz){return ((uint8 *)&pad+(idz)) ;}
+     bool prepareLoadedData();
+ };
+ 
++#ifndef MAP_OBJ
++#define MAP_OBJ
++
++struct SMMapObjDef // 03-29-2005 By ObscuR
++{
++uint32 nameId;
++uint32 uniqueId;
++float pos[3];
++float rot[3];
++float extents[6];
++uint32 flags;
++uint32 doodadSet;
++uint16 nameSet;
++};
++
++#endif
++
++class wdt_MODF
++{
++    union{
++        uint32 fcc;
++        char   fcc_txt[4];
++    };
++    uint32 size;
++public:
++
++
++	SMMapObjDef data;
++	int getCount() { return (size-4)/sizeof(SMMapObjDef);}
++};
++
+ class wdt_MPHD{
+     union{
+         uint32 fcc;
+@@ -63,6 +98,7 @@ public:
+     wdt_MPHD *mphd;
+     wdt_MAIN *main;
+     wdt_MWMO *wmo;
++	wdt_MODF *modf;
+ };
+ 
+ #endif
+\ No newline at end of file
+diff --git a/contrib/extractor/wmoJuicer.cpp b/contrib/extractor/wmoJuicer.cpp
+new file mode 100644
+index 0000000..5fd3ef0
+--- /dev/null
++++ b/contrib/extractor/wmoJuicer.cpp
+@@ -0,0 +1,441 @@
++#define _CRT_SECURE_NO_DEPRECATE
++
++#include "wmoJuicer.h"
++
++#include <math.h>
++#include <stdio.h>
++#include <string>
++
++
++bool  wmoJuicer::wmo_MOGP::prepareLoadedData()
++{
++    if (fcc != 'MOGP')
++        return false;
++    return true;
++}
++
++bool  wmoJuicer::wmo_MOHD::prepareLoadedData()
++{
++    if (fcc != 'MOHD')
++        return false;
++    return true;
++}
++
++ wmoJuicer::WMO_file::WMO_file()
++{
++    mogp = 0;
++}
++
++ wmoJuicer::WMO_file::~WMO_file()
++{
++    free();
++}
++
++void  wmoJuicer::WMO_file::free()
++{
++    mogp = 0;
++    FileLoader::free();
++}
++
++bool  wmoJuicer::WMO_file::prepareLoadedData()
++{
++  // Check version
++    version = (file_MVER *) GetData();
++    if (version->fcc != 'MVER')
++        return false;
++    if (version->ver != 17)
++        return false;
++
++	mohd = (wmo_MOHD *)((uint8*)version+version->size+8);
++	mogp=(wmo_MOGP *)mohd;
++    if (mogp->prepareLoadedData())
++		type=group;
++	else if (mohd->prepareLoadedData())
++		type=root;
++	else
++        return false;
++
++	if (type==root)
++	{
++		mogi=(wmo_chunk*)mohd;
++		while (mogi->fcc != 'MOGI')
++		{
++			if (mogi->fcc == 'MOGN')
++				mogn=mogi;
++			mogi=(wmo_chunk*)((uint8*)mogi+mogi->size+8);
++		}
++	}
++	else if (mogp->hasWater())
++	{
++		wmo_chunk *w=(wmo_chunk*)((uint8*)mogp+76);
++		while (w->fcc != 'MLIQ')
++		{
++			w=(wmo_chunk*)((uint8*)w+w->size+8);
++		}
++		mliq=(wmo_MLIQ *)w;
++	}
++    return true;
++}
++
++wmoJuicer::wmoJuicer(const char* outdir)
++{
++  strcpy( path, outdir);
++}
++
++wmoJuicer::~wmoJuicer()
++{
++
++}
++
++void wmoJuicer::squeeze(char* wmo_file, SMMapObjDef* wmo_map, bool global)
++{
++    WMO_file wmog;
++    if (!wmog.loadFile(wmo_file))
++        printf("could not load file %s\n", wmo_file);
++    else
++    {
++        if (wmog.mogp->hasWater())
++        {
++            wmo_MLIQ* water=wmog.mliq;
++
++            float rad=(wmo_map->rot[1])*3.14592f/180.0f;
++            rad=-rad;
++            for (uint16 ii=0; ii<= water->xt; ii++)
++                for (uint16 jj=0; jj<=  water->yt; jj++)
++                {
++                    float y=(wmo_map->pos[1])+water->pos[2];
++                    //Convert to wmo location to rotate
++                    float wmo_x=water->pos[1]+(jj*TILESIZE/ADT_GRID_SIZE);
++                    float wmo_y=water->pos[0]+(ii*TILESIZE/ADT_GRID_SIZE);
++                    float abs_x=(wmo_map->pos[0]);
++                    float abs_y=(wmo_map->pos[2]);
++                    //rotate
++                    abs_x+=(wmo_x*cos(rad))-(wmo_y*sin(rad));
++                    abs_y+=(wmo_y*cos(rad))+(wmo_x*sin(rad));
++                    //now find corresponding grid
++	                float cx=abs_x*ADT_GRID_SIZE/TILESIZE;
++                    float cy=abs_y*ADT_GRID_SIZE/TILESIZE;
++					if (global)
++					{
++						cx+=ADT_GRID_SIZE*(WDT_MAP_SIZE>>1);
++						cy+=ADT_GRID_SIZE*(WDT_MAP_SIZE>>1);
++					}
++                    int gx=(int)(cx/ADT_GRID_SIZE);
++                    int gy=(int)(cy/ADT_GRID_SIZE);
++                    cx-=gx*ADT_GRID_SIZE;
++                    cy-=gy*ADT_GRID_SIZE;
++                    if (cx > 0  && cy > 0 && gx<WDT_MAP_SIZE && gy<WDT_MAP_SIZE)  //just a sanity check
++                    {
++                        if (jj < water->yt && ii < water->xt)
++                        {
++                    	    uint8 c_flag = water->getLiquidFlags(ii,jj);
++                            if (!(c_flag & 0x08))
++                            {
++                                ranged_liquid_show[gy][gx][(int)cy][(int)cx] = true;
++								if (cx<ADT_GRID_SIZE-1)
++								{
++                                   ranged_liquid_show[gy][gx][(int)cy][(int)(cx+0.5f)] = true;
++								   if (cy<ADT_GRID_SIZE-1)
++								       ranged_liquid_show[gy][gx][(int)(cy+0.5f)][(int)(cx+0.5f)] = true;
++								}
++								if (cy<ADT_GRID_SIZE-1)
++								   ranged_liquid_show[gy][gx][(int)(cy+0.5f)][(int)cx] = true;
++								if (c_flag&(0x40))
++									ranged_liquid_type[gy][gx][(int)(cy/8)][(int)(cx/8)] |= MAP_LIQUID_TYPE_WATER;
++								if (c_flag&(0x01))
++									ranged_liquid_type[gy][gx][(int)(cy/8)][(int)(cx/8)] |= MAP_LIQUID_TYPE_SLIME;
++								if (c_flag&(0x02))
++									ranged_liquid_type[gy][gx][(int)(cy/8)][(int)(cx/8)] |= MAP_LIQUID_TYPE_MAGMA;
++							}
++                        }
++						float high=water->getLiquidData(ii,jj)->height+y;
++						if (high>ranged_liquid_height[gy][gx][(int)cy][(int)cx])
++						{
++							ranged_liquid_height[gy][gx][(int)cy][(int)cx] = high;
++							if (cx<ADT_GRID_SIZE-1)
++							{
++								ranged_liquid_height[gy][gx][(int)cy][(int)(cx+0.5f)] = high;
++								if (cy<ADT_GRID_SIZE-1)
++									ranged_liquid_height[gy][gx][(int)(cy+0.5f)][(int)(cx+0.5f)] = high;
++							}
++							if (cy<ADT_GRID_SIZE-1)
++								ranged_liquid_height[gy][gx][(int)(cy+0.5f)][(int)cx] = high;
++						}
++					}
++				}
++		}
++	}
++}
++void wmoJuicer::readADT(char *filename, int cell_x, int cell_y)
++{
++    ADT_file adt;
++
++    if (!adt.loadFile(filename))
++        return;
++
++    adt_MCIN *cells = adt.a_grid->getMCIN();
++    if (!cells)
++    {
++        printf("Can't find cells in '%s'\n", filename);
++        return;
++    }
++
++    //Get Liquid Data from wmos
++    adt_MWMO* add=adt.a_grid->getMWMO();
++    char* wmo_root;
++    int wmo_idx=0;
++    for (uint32 i=0; i<add->size; i+=strlen(wmo_root)+1)
++    {
++        wmo_root=(char*)(add->getWMO(i));
++
++        WMO_file wmo;
++        if (!wmo.loadFile(wmo_root))
++
++            printf("could not load file %s\n", wmo_root);
++        else
++        {
++            SMMapObjDef* wmo_map=&(adt.a_grid->getMODF()->data);
++            for (int j=0; j< adt.a_grid->getMODF()->getCount(); j++)
++            {
++                if (wmo_map->nameId==wmo_idx)
++                    break;
++                wmo_map++;
++            }
++			if (wmo_map->nameId!=wmo_idx)
++				continue;
++			for (uint32 j=0; j<wmo.mohd->groups; j++)
++			{
++				char* wmo_fname=new char[256];
++				std::string tmps=((std::string)wmo_root).substr(0,strlen(wmo_root)-4);
++				sprintf(wmo_fname,"%s_%03i.wmo", tmps.c_str(), j);
++				squeeze(wmo_fname, wmo_map, false);
++			}
++		}
++    wmo_idx++;
++	}
++}
++
++void wmoJuicer::readWDT(WDT_file *wdt)
++{
++
++    //Get Liquid Data from wmos
++    char* wmo_root;
++    int wmo_idx=0;
++    for (uint32 i=0; i<wdt->wmo->size; i+=strlen(wmo_root)+1)
++    {
++        wmo_root=(char*)(wdt->wmo->getWMO(i));
++        WMO_file wmo;
++        if (!wmo.loadFile(wmo_root))
++
++            printf("could not load file %s\n", wmo_root);
++        else
++        {
++            SMMapObjDef* wmo_map=&(wdt->modf->data);
++            for (int j=0; j< wdt->modf->getCount(); j++)
++            {
++                if (wmo_map->nameId==wmo_idx)
++                    break;
++                wmo_map++;
++            }
++			if (wmo_map->nameId!=wmo_idx)
++				continue;
++			for (uint32 j=0; j<wmo.mohd->groups; j++)
++			{
++				char* wmo_fname=new char[256];
++				std::string tmps=((std::string)wmo_root).substr(0,strlen(wmo_root)-4);
++				sprintf(wmo_fname,"%s_%03i.wmo", tmps.c_str(), j);
++				squeeze(wmo_fname, wmo_map, true);
++			}
++		}
++    wmo_idx++;
++	}
++}
++void wmoJuicer::Juice(char* map_name, int map_id, WDT_file* wdt)
++{
++    char mpq_filename[128]=".";
++    clearLiquid();
++	if (wdt->mphd->data1) //one global WMO
++	{
++		readWDT(wdt);
++		for(int y=0; y < WDT_MAP_SIZE; ++y)
++			for(int x=0; x< WDT_MAP_SIZE; ++x)
++				saveWDT(map_id ,y,x);
++	}
++	//else   Someplaces have both
++	{
++		for(int y = 0; y < WDT_MAP_SIZE; ++y)
++		{
++
++			for(uint32 x = 0; x < WDT_MAP_SIZE; ++x)
++			{
++				if (wdt->main->adt_list[y][x].exist)
++				{
++					sprintf(mpq_filename, "World\\Maps\\%s\\%s_%u_%u.adt", map_name, map_name, x, y);
++					readADT(mpq_filename, x, y);
++				}
++			}
++
++			// draw progress bar
++			printf("Processing........................%d%%\r", (50 * (y+1)) / WDT_MAP_SIZE);
++		}
++	}
++}
++
++
++void wmoJuicer::clearLiquid()
++{
++     memset(ranged_liquid_type, 0, sizeof(uint8)*ADT_CELLS_PER_GRID*ADT_CELLS_PER_GRID*WDT_MAP_SIZE*WDT_MAP_SIZE);
++     memset(ranged_liquid_show, 0, sizeof(bool)*ADT_GRID_SIZE*ADT_GRID_SIZE*WDT_MAP_SIZE*WDT_MAP_SIZE);
++	 for (int cy=0; cy< WDT_MAP_SIZE; ++cy)
++		for (int cx=0; cx< WDT_MAP_SIZE; ++cx)
++			for (int y=0; y<= ADT_GRID_SIZE; ++y)
++				for (int x=0; x<= ADT_GRID_SIZE; ++x)
++					ranged_liquid_height[cy][cx][y][x]=-500.f;
++}
++
++bool wmoJuicer::getLiquid(int cell_x, int cell_y, uint8* type, bool* show, float* height)
++{
++     memcpy(type, ranged_liquid_type[cell_y][cell_x], sizeof(uint8)*ADT_CELLS_PER_GRID*ADT_CELLS_PER_GRID);
++	 memcpy(show, ranged_liquid_show[cell_y][cell_x], sizeof(bool)*ADT_GRID_SIZE*ADT_GRID_SIZE);
++	 memcpy(height, ranged_liquid_height[cell_y][cell_x], sizeof(float)*(ADT_GRID_SIZE+1)*(ADT_GRID_SIZE+1));
++
++     return true;
++}
++
++bool wmoJuicer::saveWDT(int map_id, int cell_y, int cell_x)
++{
++	// Prepare map header
++    map_fileheader map;
++    map.mapMagic = *(uint32 const*)MAP_MAGIC;
++    map.versionMagic = *(uint32 const*)MAP_VERSION_MAGIC;
++
++	//============================================
++    // Pack liquid data
++    //============================================
++    uint8 type = ranged_liquid_type[cell_y][cell_x][0][0];
++    bool fullType = false;
++    for (int y=0;y<ADT_CELLS_PER_GRID;y++)
++    {
++        for(int x=0;x<ADT_CELLS_PER_GRID;x++)
++        {
++            if (ranged_liquid_type[cell_y][cell_x][y][x]!=type)
++            {
++                fullType = true;
++                y = ADT_CELLS_PER_GRID;
++                break;
++            }
++        }
++    }
++
++	// no water data (if all grid have 0 liquid type)
++    if (type == 0 && !fullType)
++    {
++        return false;
++    }
++
++    float maxHeight = -20000;
++    float minHeight =  20000;
++
++	map.areaMapOffset = sizeof(map);
++    map.areaMapSize   = sizeof(map_areaHeader);
++
++    map_areaHeader areaHeader;
++    areaHeader.fourcc = *(uint32 const*)MAP_AREA_MAGIC;
++    areaHeader.flags = 0;
++    areaHeader.flags = MAP_AREA_NO_AREA;
++    areaHeader.gridArea = 0;
++
++	map.heightMapOffset = map.areaMapOffset + map.areaMapSize;
++    map.heightMapSize = sizeof(map_heightHeader);
++
++    map_heightHeader heightHeader;
++    heightHeader.fourcc = *(uint32 const*)MAP_HEIGHT_MAGIC;
++    heightHeader.flags = 0;
++    heightHeader.gridHeight    = maxHeight;
++    heightHeader.gridMaxHeight = maxHeight;
++    heightHeader.flags |=MAP_HEIGHT_NO_HEIGHT;
++
++	map_liquidHeader liquidHeader;
++
++	maxHeight = -20000;
++    minHeight =  20000;
++    int minX = 255, minY = 255;
++    int maxX = 0, maxY = 0;
++    for (int y=0; y<ADT_GRID_SIZE; y++)
++    {
++        for(int x=0; x<ADT_GRID_SIZE; x++)
++        {
++            if (ranged_liquid_show[cell_y][cell_x][y][x])
++            {
++                if (minX > x) minX = x;
++                if (maxX < x) maxX = x;
++                if (minY > y) minY = y;
++                if (maxY < y) maxY = y;
++                float h = ranged_liquid_height[cell_y][cell_x][y][x];
++                if (maxHeight < h) maxHeight = h;
++                if (minHeight > h) minHeight = h;
++            }
++            else
++                ranged_liquid_height[cell_y][cell_x][y][x] = -500.0f;
++        }
++    }
++    map.liquidMapOffset = map.heightMapOffset + map.heightMapSize;
++    map.liquidMapSize = sizeof(map_liquidHeader);
++    liquidHeader.fourcc = *(uint32 const*)MAP_LIQUID_MAGIC;
++    liquidHeader.flags = 0;
++    liquidHeader.liquidType = 0;
++    liquidHeader.offsetX = minX;
++    liquidHeader.offsetY = minY;
++    liquidHeader.width   = maxX - minX + 1;
++    liquidHeader.height  = maxY - minY + 1;
++    liquidHeader.liquidLevel = minHeight;
++
++    if (maxHeight == minHeight)
++        liquidHeader.flags|=MAP_LIQUID_NO_HEIGHT;
++
++    // Not need store if flat surface
++    if ((maxHeight - minHeight) < 0.001f)
++        liquidHeader.flags|=MAP_LIQUID_NO_HEIGHT;
++
++    if (!fullType)
++        liquidHeader.flags|=MAP_LIQUID_NO_TYPE;
++
++    if (liquidHeader.flags&MAP_LIQUID_NO_TYPE)
++        liquidHeader.liquidType = type;
++    else
++        map.liquidMapSize+=sizeof(ranged_liquid_type[cell_y][cell_x]);
++
++    if (!(liquidHeader.flags&MAP_LIQUID_NO_HEIGHT))
++        map.liquidMapSize+=sizeof(float)*liquidHeader.width*liquidHeader.height;
++
++	char filename[1024];
++	sprintf(filename, "%s/%03u%02u%02u.map", path, map_id, cell_y, cell_x);
++
++
++    // Ok all data prepared - store it
++    FILE *output=fopen(filename, "wb");
++    if(!output)
++    {
++        printf("Can't create the output file '%s'\n", filename);
++        return false;
++    }
++    fwrite(&map, sizeof(map), 1, output);
++    // Store area data
++    fwrite(&areaHeader, sizeof(areaHeader), 1, output);
++    // Store height data
++    fwrite(&heightHeader, sizeof(heightHeader), 1, output);
++    // Store liquid data if need
++    if (map.liquidMapOffset)
++    {
++        fwrite(&liquidHeader, sizeof(liquidHeader), 1, output);
++        if (!(liquidHeader.flags&MAP_LIQUID_NO_TYPE))
++            fwrite(ranged_liquid_type[cell_y][cell_x], sizeof(ranged_liquid_type[cell_y][cell_x]), 1, output);
++        if (!(liquidHeader.flags&MAP_LIQUID_NO_HEIGHT))
++        {
++            for (int y=0; y<liquidHeader.height;y++)
++                fwrite(&ranged_liquid_height[cell_y][cell_x][y+liquidHeader.offsetY][liquidHeader.offsetX], sizeof(float), liquidHeader.width, output);
++        }
++    }
++    fclose(output);
++       return true;
++}
+\ No newline at end of file
+diff --git a/contrib/extractor/wmoJuicer.h b/contrib/extractor/wmoJuicer.h
+new file mode 100644
+index 0000000..e6f946f
+--- /dev/null
++++ b/contrib/extractor/wmoJuicer.h
+@@ -0,0 +1,153 @@
++/*
++*               Wmo Juicer (Squeezes the liquid from WMOs)
++*                     Author: raven_coda
++*
++*
++*/
++
++
++#ifndef WMOJUICER_H
++#define WMOJUICER_H
++
++#include "loadlib/loadlib.h"
++#include "loadlib/adt.h"
++#include "loadlib/wdt.h"
++
++#define MAP_LIQUID_TYPE_NO_WATER    0x00
++#define MAP_LIQUID_TYPE_WATER       0x01
++#define MAP_LIQUID_TYPE_OCEAN       0x02
++#define MAP_LIQUID_TYPE_MAGMA       0x04
++#define MAP_LIQUID_TYPE_SLIME       0x08
++
++#define MAP_LIQUID_TYPE_DARK_WATER  0x10
++#define MAP_LIQUID_TYPE_WMO_WATER   0x20
++
++
++#define BLOCK (ADT_CELLS_PER_GRID * ADT_CELLS_PER_GRID) + (ADT_GRID_SIZE * ADT_GRID_SIZE) + (4 * (ADT_GRID_SIZE+1)*(ADT_GRID_SIZE+1))
++
++class wmoJuicer{
++public:
++    class wmo_chunk{
++    public:
++	union{
++            uint32 fcc;
++            char   fcc_txt[4];
++        };
++	uint32 size;
++	uint32 pad;
++    };
++
++    struct liquid_data{
++        uint16 light;
++	uint16 right;
++        float  height;
++    };
++
++    class wmo_MLIQ{
++	union{
++            uint32 fcc;
++            char   fcc_txt[4];
++        };
++    public:
++        uint32 size;
++	uint32 xv;
++	uint32 yv;
++	uint32 xt;
++	uint32 yt;
++	float pos[3];
++	uint16 matID;
++	uint32 data;
++	liquid_data* getLiquidData(int x, int y) {return (liquid_data*)((uint8 *)&data+(y*xv+x)*sizeof(liquid_data));}
++	uint8 getLiquidFlags(int x, int y){ return ((uint8 *)&data+(yv*xv)*sizeof(liquid_data))[y*xt+x];}
++    };
++
++    class wmo_MOGP{
++        union{
++            uint32 fcc;
++            char   fcc_txt[4];
++        };
++    public:
++        uint32 size;
++	uint32 groupName;
++	uint32 descName;
++	uint32 flags;
++	uint32 pad;
++	bool   prepareLoadedData();
++	bool hasWater(){ return flags & 0x1000;}
++	wmo_chunk* getName(){ return (wmo_chunk*)((uint8 *)&pad+groupName);}
++	wmo_chunk* getDesc(){ return (wmo_chunk*)((uint8 *)&pad+descName);}
++    };
++
++    class wmo_MOHD{
++        union{
++            uint32 fcc;
++            char   fcc_txt[4];
++        };
++    public:
++        uint32 size;
++	uint32 mats;
++	uint32 groups;
++	uint32 portals;
++	uint32 pad;
++	bool   prepareLoadedData();
++    };
++
++    struct group_entry
++    {
++	uint32 flags;
++	float bb1[3];
++	float bb2[3];
++	uint32 nameoffs;
++    };
++
++    class WMO_file : public FileLoader{
++    public:
++        bool   prepareLoadedData();
++
++        WMO_file();
++        ~WMO_file();
++        void free();
++
++	union{
++            wmo_MOGP *mogp;
++	    wmo_MOHD *mohd;
++	};
++
++	wmo_chunk *mogi;
++	wmo_chunk *mogn;
++	wmo_MLIQ *mliq;
++
++	enum wmo_type{
++		root,
++		group
++	};
++
++	wmo_type type;
++    };
++
++    wmoJuicer(const char* outdir);
++    ~wmoJuicer();
++
++    void Juice(char* map_name, int map_id, WDT_file* wdt);
++    bool getLiquid(int cell_x, int cell_y, uint8* type, bool* show, float* height);
++
++private:
++    void readADT(char *filename, int cell_y, int cell_x);
++	void readWDT(WDT_file* wdt);
++	bool saveWDT(int map_id, int cell_y, int cell_x);
++
++	void squeeze(char *wmo_file, SMMapObjDef* wmo_map, bool global);
++
++    void clearLiquid();
++
++    uint8 ranged_liquid_type[WDT_MAP_SIZE][WDT_MAP_SIZE][ADT_CELLS_PER_GRID][ADT_CELLS_PER_GRID];
++    bool  ranged_liquid_show[WDT_MAP_SIZE][WDT_MAP_SIZE][ADT_GRID_SIZE][ADT_GRID_SIZE];
++    float ranged_liquid_height[WDT_MAP_SIZE][WDT_MAP_SIZE][ADT_GRID_SIZE+1][ADT_GRID_SIZE+1];
++    char path[128];
++    char filepath[128];
++
++
++};
++
++
++#endif
