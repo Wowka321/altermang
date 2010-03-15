@@ -20334,6 +20334,8 @@ bool Player::RewardPlayerAndGroupAtKill(Unit* pVictim)
                        pGroupGuy->getLevel() <= not_gray_member_with_max_level->getLevel())
                     {
                         uint32 itr_xp = (member_with_max_level == not_gray_member_with_max_level) ? uint32(xp*rate) : uint32((xp*rate/2)+1);
+                        if ((member_with_max_level->getLevel() - pGroupGuy->getLevel()) > 5)
+                            itr_xp = 0; //Don't give exp if very high lvl in group :P
 
                         pGroupGuy->GiveXP(itr_xp, pVictim);
                         if(Pet* pet = pGroupGuy->GetPet())
