@@ -8501,7 +8501,7 @@ bool ObjectMgr::IsVendorItemValid( uint32 vendor_entry, uint32 item_id, uint32 m
     if(!vItems)
         return true;                                        // later checks for non-empty lists
 
-    if(vItems->FindItem(item_id))
+    if(!ExtendedCost && vItems->FindItem(item_id))
     {
         if(pl)
             ChatHandler(pl).PSendSysMessage(LANG_ITEM_ALREADY_IN_LIST,item_id);
