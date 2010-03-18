@@ -220,6 +220,9 @@ void ThreatContainer::clearReferences()
 // Return the HostileReference of NULL, if not found
 HostileReference* ThreatContainer::getReferenceByTarget(Unit* pVictim)
 {
+   if(!pVictim)
+        return NULL;
+
     HostileReference* result = NULL;
     uint64 guid = pVictim->GetGUID();
     for(ThreatList::const_iterator i = iThreatList.begin(); i != iThreatList.end(); ++i)
@@ -386,6 +389,9 @@ void ThreatManager::addThreat(Unit* pVictim, float pThreat, bool crit, SpellScho
 
     // not to dead and not for dead
     if(!pVictim->isAlive() || !getOwner()->isAlive() )
+        return;
+
+    if (!getOwner()->IsHostileTo(pVictim))
         return;
 
     assert(getOwner()->GetTypeId()== TYPEID_UNIT);
