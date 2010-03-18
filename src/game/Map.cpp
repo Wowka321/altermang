@@ -1971,28 +1971,6 @@ ZLiquidStatus Map::getLiquidStatus(float x, float y, float z, uint8 ReqLiquidTyp
 
 float Map::GetWaterLevel(float x, float y ) const
 {
-    switch (GetAreaFlag(x,y,0.0f))
-    {
-    case 707:
-        if (x > 1436.0f && x < 1539.0f && y > -4239.0f && y < -4148.0f)
-            return 39.1f;
-        if (x > 1956.0f && x < 2017.0f && y > -4678.0f && y < -4635.0f)
-            return 24.0f;
-        break;
-    case 119:
-        if (x > -4696.0f && x < -4644.0f && y > -1107.0f && y < -1063.0f)
-            return 500.0f;
-        break;
-    case 2484:
-        if (x > 5695.0f && x < 5705.0f && y > 600.0f && y < 611.0f)
-            return 646.0f;
-        break;
-    default: break;
-    }
-
-    if (const_cast<Map*>(this)->GetId() == 548)
-        return -20.0f;
-
     if(GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y))
         return gmap->getLiquidLevel(x, y);
     else
@@ -2038,32 +2016,6 @@ bool Map::IsInWater(float x, float y, float pZ) const
             if (liquid_status.level - liquid_status.depth_level > 2)
                 return true;
         }
-
-        switch(GetAreaFlag(x,y,pZ))
-        {
-        case 707:
-            if (x > 1436.0f && x < 1539.0f && y > -4239.0f && y < -4148.0f && pZ < 41.0f && pZ > 30.0f)
-                return true;
-            if (x > 1956.0f && x < 2017.0f && y > -4678.0f && y < -4635.0f && pZ < 26.0f && pZ > 20.0f)
-                return true;
-            break;
-        case 119:
-            if (x > -4696.0f && x < -4644.0f && y > -1107.0f && y < -1063.0f && pZ < 510.0f && pZ > 485.0f)
-                return true;
-            break;
-        case 2153:
-            if (x > 5695.0f && x < 5705.0f && y > 600.0f && y < 611.0f && pZ < 650.0f && pZ > 640.0f)
-                return true;
-            break;
-        default: break;
-        }
-
-        if (const_cast<Map*>(this)->GetId() == 548)
-        {
-            if (x > 34.0f && x < 45.0f && y > -423.0f && y < -404.0f && pZ < -17.0f && pZ > -23.0f)
-                return true;
-        }
-
     }
     return false;
 }
