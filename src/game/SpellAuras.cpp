@@ -2632,6 +2632,13 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 m_target->CastSpell(m_target, 47287, true, NULL, this);
                 return;
             }
+            case 34477: //Misdirection
+            case 57934: //Tricks of Trade
+            {
+                if(Unit * caster = GetCaster())
+                    caster->SetThreatRedirectionTarget(0, 0);
+                return;
+            }
             case 58600:                                     // Restricted Flight Area
             {
                 // Remove Flight Auras
