@@ -19711,7 +19711,8 @@ void Player::learnQuestRewardedSpells(Quest const* quest)
     {
         // not have first rank learned (unlearned prof?)
         uint32 first_spell = sSpellMgr.GetFirstSpellInChain(learned_0);
-        if( !HasSpell(first_spell) )
+        uint32 prev_spell = sSpellMgr.GetPrevSpellInChain(learned_0);
+        if(!HasSpell(first_spell) || !HasSpell(prev_spell))
             return;
 
         SpellEntry const *learnedInfo = sSpellStore.LookupEntry(learned_0);
