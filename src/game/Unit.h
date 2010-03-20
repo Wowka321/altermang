@@ -1905,6 +1905,8 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         ComboPointHolderSet m_ComboPointHolders;
 
         GuardianPetList m_guardianPets;
+        uint32 m_ThreatRedirectionPercent;
+        uint64 m_misdirectionTargetGUID;
 
         uint64 m_TotemSlot[MAX_TOTEM_SLOT];
 };
