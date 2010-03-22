@@ -405,6 +405,7 @@ class MANGOS_DLL_SPEC Aura
 
         uint32 m_in_use;                                    // > 0 while in Aura::ApplyModifier call/Aura::Update/etc
     private:
+        void ApplyHasteToPeriodic();
         void CleanupTriggeredSpells();
         bool IsNeedVisibleSlot(Unit const* caster) const;   // helper for check req. visibility slot
         void ReapplyAffectedPassiveAuras(Unit* target, bool owner_mode);

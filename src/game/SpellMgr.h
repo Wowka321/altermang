@@ -126,6 +126,7 @@ inline uint32 GetSpellRecoveryTime(SpellEntry const *spellInfo) { return spellIn
 int32 GetSpellDuration(SpellEntry const *spellInfo);
 int32 GetSpellMaxDuration(SpellEntry const *spellInfo);
 uint16 GetSpellAuraMaxTicks(SpellEntry const* spellInfo);
+int32 ApplyHasteToChannelSpell(int32 dur, SpellEntry const* spellInfo, Spell const* spell);
 WeaponAttackType GetWeaponAttackType(SpellEntry const *spellInfo);
 
 inline bool IsSpellHaveEffect(SpellEntry const *spellInfo, SpellEffects effect)
