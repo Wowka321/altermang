@@ -7795,7 +7795,6 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
 
             loot = &go->loot;
 
-
             if (go->getLootState() == GO_READY)
             {
                 uint32 lootid =  go->GetGOInfo()->GetLootId();
@@ -7813,34 +7812,6 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
                     sLog.outDebug("       if(lootid)");
                     loot->clear();
                     loot->FillLoot(lootid, LootTemplates_Gameobject, this, false);
-
-                    if (Group* group = this->GetGroup())
-                    {
-                       if (go->GetGoType() == GAMEOBJECT_TYPE_CHEST)
-                       {
-                        group->UpdateLooterGuid(go,true);
-
-                        switch (group->GetLootMethod())
-                        {
-                            case GROUP_LOOT:
-                                // GroupLoot delete items over threshold (threshold even not implemented), and roll them. Items with quality<threshold, round robin
-                                group->GroupLoot(this->GetObjectGuid(), loot, go);
-                                permission = GROUP_PERMISSION;
-                                break;
-                            case NEED_BEFORE_GREED:
-                                group->NeedBeforeGreed(this->GetObjectGuid(), loot, go);
-                                permission = GROUP_PERMISSION;
-                                break;
-                            case MASTER_LOOT:
-                                group->MasterLoot(this->GetObjectGuid(), loot, go);
-                                permission = MASTER_PERMISSION;
-                                break;
-                            default:
-                                break;
-                        }
-                       }
-                    }
-
                 }
 
                 if (loot_type == LOOT_FISHING)
@@ -7848,29 +7819,6 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
 
                 go->SetLootState(GO_ACTIVATED);
             }
-            if ((go->getLootState() == GO_ACTIVATED) && (go->GetGoType() == GAMEOBJECT_TYPE_CHEST))
-            {
-                    if(Group* group = GetGroup())
-                    {
-                        if (group == this->GetGroup())
-                        {
-                            if (group->GetLootMethod() == FREE_FOR_ALL)
-                                permission = ALL_PERMISSION;
-                            else if (group->GetLooterGuid() == GetGUID())
-                            {
-                                if (group->GetLootMethod() == MASTER_LOOT)
-                                    permission = MASTER_PERMISSION;
-                                else
-                                    permission = ALL_PERMISSION;
-                            }
-                            else
-                                permission = GROUP_PERMISSION;
-                        }
-                        else
-                            permission = NONE_PERMISSION;
-                    }
-            }
-
             break;
         }
         case HIGHGUID_ITEM:
