@@ -7818,30 +7818,27 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
                     {
                        if (go->GetGoType() == GAMEOBJECT_TYPE_CHEST)
                        {
-                         if (go->GetGOInfo()->chest.groupLootRules == 1)
-                         {
-                           group->UpdateLooterGuid(go,true);
+                        group->UpdateLooterGuid(go,true);
 
-                           switch (group->GetLootMethod())
-                           {
-                               case GROUP_LOOT:
-                                   // GroupLoot delete items over threshold (threshold even not implemented), and roll them. Items with quality<threshold, round robin
-                                   group->GroupLoot(this->GetObjectGuid(), loot, go);
-                                   permission = GROUP_PERMISSION;
-                                   break;
-                               case NEED_BEFORE_GREED:
-                                   group->NeedBeforeGreed(this->GetObjectGuid(), loot, go);
-                                   permission = GROUP_PERMISSION;
-                                   break;
-                               case MASTER_LOOT:
-                                   group->MasterLoot(this->GetObjectGuid(), loot, go);
-                                   permission = MASTER_PERMISSION;
-                                   break;
-                               default:
-                                   break;
-                            }
-                          }
+                        switch (group->GetLootMethod())
+                        {
+                            case GROUP_LOOT:
+                                // GroupLoot delete items over threshold (threshold even not implemented), and roll them. Items with quality<threshold, round robin
+                                group->GroupLoot(this->GetObjectGuid(), loot, go);
+                                permission = GROUP_PERMISSION;
+                                break;
+                            case NEED_BEFORE_GREED:
+                                group->NeedBeforeGreed(this->GetObjectGuid(), loot, go);
+                                permission = GROUP_PERMISSION;
+                                break;
+                            case MASTER_LOOT:
+                                group->MasterLoot(this->GetObjectGuid(), loot, go);
+                                permission = MASTER_PERMISSION;
+                                break;
+                            default:
+                                break;
                         }
+                       }
                     }
 
                 }
@@ -7853,8 +7850,6 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
             }
             if ((go->getLootState() == GO_ACTIVATED) && (go->GetGoType() == GAMEOBJECT_TYPE_CHEST))
             {
-                if (go->GetGOInfo()->chest.groupLootRules == 1)
-                {
                     if(Group* group = GetGroup())
                     {
                         if (group == this->GetGroup())
@@ -7874,7 +7869,6 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
                         else
                             permission = NONE_PERMISSION;
                     }
-                }
             }
 
             break;
