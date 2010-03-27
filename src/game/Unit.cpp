@@ -7999,6 +7999,23 @@ bool Unit::HandleProcTriggerSpell(Unit *pVictim, uint32 damage, Aura* triggeredB
                 trigger_spell_id = 54843;
                 target = pVictim;
             }
+            //Item - Coliseum 25 Heroic Caster Trinket
+            else if (auraSpellInfo->Id == 67758)
+            {
+                if(!pVictim || !pVictim->isAlive())
+                    return false;
+                // counting
+                Aura *aur = GetDummyAura(67759);
+                if (aur && uint32(aur->GetStackAmount() + 1) >= 3)
+                {
+                    RemoveAurasDueToSpell(67759);
+                    CastSpell(pVictim, 67760, true);       // Pillar of Flame
+                    return true;
+                }
+                // stacking
+                else
+                    trigger_spell_id = 67759;              // Shard of Flame
+            }
             break;
         }
         case SPELLFAMILY_SHAMAN:
