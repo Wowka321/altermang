@@ -98,12 +98,6 @@ struct PlayerSpell
 
 typedef UNORDERED_MAP<uint32, PlayerSpell> PlayerSpellMap;
 
-struct PlayerTalent
-{
-    PlayerSpellState state : 8;
-    uint8 spec             : 8;
-};
-
 // Spell modifier (used for modify other spells)
 struct SpellModifier
 {
@@ -129,7 +123,6 @@ struct SpellModifier
     Spell const* lastAffected;
 };
 
-typedef UNORDERED_MAP<uint32, PlayerTalent*> PlayerTalentMap;
 typedef std::list<SpellModifier*> SpellModList;
 
 struct SpellCooldown
@@ -910,8 +903,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOADGLYPHS               = 22,
     PLAYER_LOGIN_QUERY_LOADMAILS                = 23,
     PLAYER_LOGIN_QUERY_LOADMAILEDITEMS          = 24,
-    PLAYER_LOGIN_QUERY_LOADTALENTS              = 25,
-    MAX_PLAYER_LOGIN_QUERY                      = 26
+    MAX_PLAYER_LOGIN_QUERY                      = 25
 };
 
 enum PlayerDelayedOperations
@@ -1570,9 +1562,6 @@ class MANGOS_DLL_SPEC Player : public Unit
         void SendTalentsInfoData(bool pet);
         void LearnTalent(uint32 talentId, uint32 talentRank);
         void LearnPetTalent(uint64 petGuid, uint32 talentId, uint32 talentRank);
-
-        bool AddTalent(uint32 spell, uint8 spec, bool learning);
-        bool HasTalent(uint32 spell_id, uint8 spec) const;
 
         uint32 CalculateTalentsPoints() const;
 
@@ -2367,7 +2356,6 @@ class MANGOS_DLL_SPEC Player : public Unit
         void _LoadEquipmentSets(QueryResult *result);
         void _LoadBGData(QueryResult* result);
         void _LoadGlyphs(QueryResult *result);
-        void _LoadTalents(QueryResult *result);
         void _LoadIntoDataField(const char* data, uint32 startOffset, uint32 count);
 
         /*********************************************************/
@@ -2385,7 +2373,6 @@ class MANGOS_DLL_SPEC Player : public Unit
         void _SaveEquipmentSets();
         void _SaveBGData();
         void _SaveGlyphs();
-        void _SaveTalents();
 
         void _SetCreateBits(UpdateMask *updateMask, Player *target) const;
         void _SetUpdateBits(UpdateMask *updateMask, Player *target) const;
@@ -2438,7 +2425,6 @@ class MANGOS_DLL_SPEC Player : public Unit
         PlayerMails m_mail;
         PlayerSpellMap m_spells;
         SpellCooldowns m_spellCooldowns;
-        PlayerTalentMap *m_talents[MAX_TALENT_SPEC_COUNT];
         uint32 m_lastPotionId;                              // last used health/mana potion in combat, that block next potion use
 
         uint8 m_activeSpec;
