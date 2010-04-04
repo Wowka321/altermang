@@ -3491,6 +3491,10 @@ void Spell::EffectCreateItem2(SpellEffectIndex eff_idx)
 
     uint32 item_id = m_spellInfo->EffectItemType[eff_idx];
 
+    //if no info about item_id, try extract item_id from EffectMiscValue
+    if (item_id == 0)
+        item_id = m_spellInfo->EffectMiscValue[eff_idx];
+
     DoCreateItem(eff_idx, item_id);
 
     // special case: fake item replaced by generate using spell_loot_template
