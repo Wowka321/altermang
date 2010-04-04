@@ -1623,6 +1623,12 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     return false;
             }
 
+            if( spellInfo_2->SpellFamilyName == SPELLFAMILY_DRUID )
+            {   // Rip and Flurry
+                if (spellInfo_1->SpellIconID == 108 && spellInfo_2->SpellIconID == 108)
+                    return false;
+            }
+			
             // Hamstring -> Improved Hamstring (multi-family check)
             if( (spellInfo_1->SpellFamilyFlags & UI64LIT(0x2)) && spellInfo_2->Id == 23694 )
                 return false;
@@ -1717,10 +1723,17 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     return false;
             }
 
+            if( spellInfo_2->SpellFamilyName == SPELLFAMILY_WARRIOR )
+            {
+                // Rip and Flurry
+                if (spellInfo_1->SpellIconID == 108 && spellInfo_2->SpellIconID == 108)
+                    return false;
+            }
+
             // Leader of the Pack and Scroll of Stamina (multi-family check)
             if( spellInfo_1->Id == 24932 && spellInfo_2->SpellIconID == 312 && spellInfo_2->SpellVisual[0] == 216 )
                 return false;
-
+						
             // Dragonmaw Illusion (multi-family check)
             if (spellId_1 == 42016 && spellId_2 == 40216 )
                 return false;
