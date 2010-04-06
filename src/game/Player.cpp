@@ -6836,12 +6836,6 @@ void Player::_ApplyItemMods(Item *item, uint8 slot,bool apply)
     if(!proto)
         return;
 
-    if(item->IsBroken() && proto->Socket[0].Color)  //This need to remove bonuses from meta if item broken
-      {
-        CorrectMetaGemEnchants(slot, apply);
-        return;
-      }
-
     // not apply/remove mods for broken item
     if(item->IsBroken())
         return;
