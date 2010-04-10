@@ -12798,10 +12798,6 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId)
                     if (!pCreature->isCanTrainingOf(this, false))
                         bCanTalk = false;
                     break;
-                case GOSSIP_OPTION_LEARNDUALSPEC:
-                    if(!(GetSpecsCount() == 1 && pCreature->isCanTrainingAndResetTalentsOf(this) && !(getLevel() < MIN_DUALSPEC_LEVEL)))
-                        bCanTalk = false;
-                    break;
                 case GOSSIP_OPTION_UNLEARNTALENTS:
                     if (!pCreature->isCanTrainingAndResetTalentsOf(this))
                         bCanTalk = false;
@@ -13000,28 +12996,6 @@ void Player::OnGossipSelect(WorldObject* pSource, uint32 gossipListId, uint32 me
             break;
         case GOSSIP_OPTION_TRAINER:
             GetSession()->SendTrainerList(guid);
-            break;
-        case GOSSIP_OPTION_LEARNDUALSPEC:
-            if(GetSpecsCount() == 1 && !(getLevel() < MIN_DUALSPEC_LEVEL))
-            {
-                if (GetMoney() < 10000000)
-                {
-                    SendBuyError( BUY_ERR_NOT_ENOUGHT_MONEY, 0, 0, 0);
-                    PlayerTalkClass->CloseGossip();
-                    break;
-                }
-                else
-                {
-                    ModifyMoney(-10000000);
-
-                    // Cast spells that teach dual spec
-                    // Both are also ImplicitTarget self and must be cast by player
-                    this->CastSpell(this,63624,true); // This will also learn 63680 in its dummy effect
-
-                    // Should show another Gossip text with "Congratulations..."
-                    PlayerTalkClass->CloseGossip();
-                }
-            }
             break;
         case GOSSIP_OPTION_UNLEARNTALENTS:
             PlayerTalkClass->CloseGossip();
