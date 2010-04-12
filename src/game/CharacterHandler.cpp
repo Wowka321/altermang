@@ -494,6 +494,7 @@ void WorldSession::HandleCharDeleteOpcode( WorldPacket & recv_data )
         return;
 
     uint32 accountId = 0;
+    uint32 level = 0;
     std::string name;
 
     // is guild leader
@@ -514,18 +515,28 @@ void WorldSession::HandleCharDeleteOpcode( WorldPacket & recv_data )
         return;
     }
 
-    QueryResult *result = CharacterDatabase.PQuery("SELECT account,name FROM characters WHERE guid='%u'", GUID_LOPART(guid));
+    QueryResult *result = CharacterDatabase.PQuery("SELECT account,name, level FROM characters WHERE guid='%u'", GUID_LOPART(guid));
     if(result)
     {
         Field *fields = result->Fetch();
         accountId = fields[0].GetUInt32();
         name = fields[1].GetCppString();
+        level = fields[2].GetUInt32();
         delete result;
     }
 
     // prevent deleting other players' characters using cheating tools
     if(accountId != GetAccountId())
         return;
+
+    // if not allowed delete
+    if(sWorld.getConfig(CONFIG_UINT32_MIN_LEVEL_FOR_DELETE) && level >= sWorld.getConfig(CONFIG_UINT32_MIN_LEVEL_FOR_DELETE))
+    {
+        WorldPacket data(SMSG_CHAR_DELETE, 1);
+        data << (uint8)CHAR_DELETE_FAILED;
+        SendPacket( &data );
+        return;
+    }
 
     std::string IP_str = GetRemoteAddress();
     sLog.outBasic("Account: %d (IP: %s) Delete Character:[%s] (guid: %u)", GetAccountId(), IP_str.c_str(), name.c_str(), GUID_LOPART(guid));
