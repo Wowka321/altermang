@@ -11322,6 +11322,10 @@ bool Unit::isVisibleForOrDetect(Unit const* u, WorldObject const* viewPoint, boo
         invisible = false;
     }
 
+    // Arena preparation hack
+    if(HasAura(SPELL_ARENA_PREPARATION))
+        invisible = true;
+
     // special cases for always overwrite invisibility/stealth
     if(invisible || m_Visibility == VISIBILITY_GROUP_STEALTH)
     {
