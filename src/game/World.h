@@ -179,6 +179,9 @@ enum eConfigUInt32Values
     CONFIG_LFG_COST,
     CONFIG_UINT32_MIN_LEVEL_STAT_SAVE,
     CONFIG_UINT32_MIN_LEVEL_FOR_DELETE,
+    CONFIG_UINT32_ANTICHEAT_TELEPORTTOPLANE_ALARMS,
+    CONFIG_UINT32_ANTICHEAT_MISTIMING_DELTA,
+    CONFIG_UINT32_ANTICHEAT_MISTIMING_ALARMS,
     CONFIG_UINT32_VALUE_COUNT
 };
 
@@ -305,6 +308,7 @@ enum eConfigBoolValues
     CONFIG_BOOL_BATTLEGROUND_CAST_DESERTER,
     CONFIG_BOOL_BATTLEGROUND_QUEUE_ANNOUNCER_START,
     CONFIG_BOOL_ARENA_AUTO_DISTRIBUTE_POINTS,
+    CONFIG_BOOL_ANTICHEAT_ENABLE,
     CONFIG_BOOL_ARENA_QUEUE_ANNOUNCER_JOIN,
     CONFIG_BOOL_ARENA_QUEUE_ANNOUNCER_EXIT,
     CONFIG_CHECK_PROF_AT_LOGIN,
@@ -568,6 +572,13 @@ class World
         static float GetVisibleUnitGreyDistance()           { return m_VisibleUnitGreyDistance;       }
         static float GetVisibleObjectGreyDistance()         { return m_VisibleObjectGreyDistance;     }
 
+        //movement anticheat
+        static bool GetEnableMvAnticheat()          {return m_EnableMvAnticheat;}
+        static uint32 GetTeleportToPlaneAlarms()    {return m_TeleportToPlaneAlarms;}
+        static uint32 GetMistimingDelta()           {return m_MistimingDelta;}
+        static uint32 GetMistimingAlarms()          {return m_MistimingAlarms;}
+        //end movement anticheat
+
         void ProcessCliCommands();
         void QueueCliCommand(CliCommandHolder* commandHolder) { cliCmdQueue.add(commandHolder); }
 
@@ -658,6 +669,12 @@ class World
         static float m_MaxVisibleDistanceInFlight;
         static float m_VisibleUnitGreyDistance;
         static float m_VisibleObjectGreyDistance;
+
+        // for movement anticheat
+        static bool m_EnableMvAnticheat;
+        static uint32 m_TeleportToPlaneAlarms;
+        static uint32 m_MistimingDelta;
+        static uint32 m_MistimingAlarms;
 
         // CLI command holder to be thread safe
         ACE_Based::LockedQueue<CliCommandHolder*,ACE_Thread_Mutex> cliCmdQueue;
