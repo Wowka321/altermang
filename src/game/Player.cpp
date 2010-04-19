@@ -56,6 +56,7 @@
 #include "BattleGroundMgr.h"
 #include "ArenaTeam.h"
 #include "Chat.h"
+#include "GameEventMgr.h"
 #include "Database/DatabaseImpl.h"
 #include "Spell.h"
 #include "SocialMgr.h"
