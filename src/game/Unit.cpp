@@ -6399,12 +6399,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     triggered_spell_id = 54846;
                     break;
                 }
-                // Glyph of Shred
-                case 54815:
-                {
-                    triggered_spell_id = 63974;
-                    break;
-                }
                 // Glyph of Rake
                 case 54821:
                 {
@@ -6527,12 +6521,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                         return false;
 
                     triggered_spell_id = 32747;
-                    break;
-                }
-                // Glyph of Backstab
-                case 56800:
-                {
-                    triggered_spell_id = 63975;
                     break;
                 }
             }
