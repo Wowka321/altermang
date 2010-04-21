@@ -21,6 +21,9 @@
 
 #include "DBCFileLoader.h"
 #include "Log.h"
+#include "Database/Field.h"
+#include "Database/QueryResult.h"
+#include "SQLStorage.h"
 
 struct SqlDbc
 {
