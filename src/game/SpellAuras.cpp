@@ -8729,7 +8729,8 @@ void Aura::HandleAuraOpenStable(bool apply, bool Real)
         return;
 
     Unit* caster = GetCaster();
-    if(!caster || caster->GetTypeId() != TYPEID_PLAYER)
+
+    if(!caster || !caster->IsInWorld() || caster->GetTypeId() != TYPEID_PLAYER)
         return;
 
     WorldPacket data;
