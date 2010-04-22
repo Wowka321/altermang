@@ -1474,6 +1474,12 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
 
                     break;
                 }
+                case SPELLFAMILY_PRIEST:
+                {
+                    // Runescroll of Fortitude & Prayer/PW  Fortitude can't stack
+                    if (spellInfo_1->Id == 72590 && spellInfo_2->SpellVisual[0] == 278)
+                        return true;
+                }
                 case SPELLFAMILY_DRUID:
                 {
                     // Scroll of Stamina and Leader of the Pack (multi-family check)
@@ -1691,6 +1697,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             //Improved Mind Blast and Berserks
             if ( spellInfo_1->Id == 48301 && spellInfo_2->SpellIconID == 95 ) 
                 return false;
+
+            // Prayer/PW  Fortitude && Runescroll of Fortitude can't stack
+            if (spellInfo_1->SpellVisual[0] == 278 && spellInfo_2->Id == 72590)
+                return true;
+
             break;
         case SPELLFAMILY_DRUID:
             if( spellInfo_2->SpellFamilyName == SPELLFAMILY_DRUID )
