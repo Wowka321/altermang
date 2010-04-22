@@ -6232,6 +6232,70 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     m_caster->CastSpell(unitTarget, 72588, true);
                     return;
                 }
+                case 72286:                                 // Invincible
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    // Prevent stacking of mounts
+                    unitTarget->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+                    uint16 skillval = ((Player*)unitTarget)->GetSkillValue(SKILL_RIDING);
+                    if (!skillval)
+                        return;
+
+                    if (skillval >= 225)
+                    {
+                        uint32 spellid = skillval >= 300 ? 72284 : 72283;
+                        SpellEntry const *pSpell = sSpellStore.LookupEntry(spellid);
+                        // zone check
+                        uint32 zone, area;
+                        unitTarget->GetZoneAndAreaId(zone, area);
+
+                        SpellCastResult locRes= sSpellMgr.GetSpellAllowedInLocationError(pSpell, unitTarget->GetMapId(), zone, area, unitTarget->GetCharmerOrOwnerPlayerOrPlayerItself());
+                        if (locRes != SPELL_CAST_OK || !((Player*)unitTarget)->IsKnowHowFlyIn(unitTarget->GetMapId(),zone))
+                            unitTarget->CastSpell(unitTarget, 72282, true);
+                        else
+                            unitTarget->CastSpell(unitTarget, pSpell, true);
+                    }
+                    else if (skillval >= 150)
+                        unitTarget->CastSpell(unitTarget, 72282, true);
+                    else
+                        unitTarget->CastSpell(unitTarget, 72281, true);
+
+                    return;
+                }
+                case 75614:                                 // Celestial Steed
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    // Prevent stacking of mounts
+                    unitTarget->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
+                    uint16 skillval = ((Player*)unitTarget)->GetSkillValue(SKILL_RIDING);
+                    if (!skillval)
+                        return;
+
+                    if (skillval >= 225)
+                    {
+                        uint32 spellid = skillval >= 300 ? 76153 : 75617;
+                        SpellEntry const *pSpell = sSpellStore.LookupEntry(spellid);
+                        // zone check
+                        uint32 zone, area;
+                        unitTarget->GetZoneAndAreaId(zone, area);
+
+                        SpellCastResult locRes= sSpellMgr.GetSpellAllowedInLocationError(pSpell, unitTarget->GetMapId(), zone, area, unitTarget->GetCharmerOrOwnerPlayerOrPlayerItself());
+                        if (locRes != SPELL_CAST_OK || !((Player*)unitTarget)->IsKnowHowFlyIn(unitTarget->GetMapId(),zone))
+                            unitTarget->CastSpell(unitTarget, 75620, true);
+                        else
+                            unitTarget->CastSpell(unitTarget, pSpell, true);
+                    }
+                    else if (skillval >= 150)
+                        unitTarget->CastSpell(unitTarget, 75620, true);
+                    else
+                        unitTarget->CastSpell(unitTarget, 75619, true);
+
+                    return;
+                }
             }
             break;
         }
