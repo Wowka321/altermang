@@ -1539,6 +1539,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     if (spellInfo_1->Id == 67480 && spellInfo_2->Id == 20911)
                         return false;
 
+                    // Ardent Defender and Libram of Obstruction
+                   if (spellInfo_1->SpellIconID == 2135 && spellInfo_2->SpellIconID == 2135)
+                       return false;
+
                     break;
                 }
             }
