@@ -1082,8 +1082,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
     // Recheck immune (only for delayed spells)
     if (m_spellInfo->speed && (
         unit->IsImmunedToDamage(GetSpellSchoolMask(m_spellInfo)) ||
-        unit->IsImmunedToSpell(m_spellInfo)) && !(m_spellInfo->Id == 64380 || m_spellInfo->Id == 64382 ||
-        m_spellInfo->Id == 32375 || m_spellInfo->Id == 32592 || m_spellInfo->Id == 39897))
+        unit->IsImmunedToSpell(m_spellInfo)))
     {
         if (realCaster)
             realCaster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_IMMUNE);
@@ -2763,13 +2762,6 @@ void Spell::cast(bool skipCheck)
             else if (m_spellInfo->Effect[EFFECT_INDEX_0]==SPELL_EFFECT_APPLY_AREA_AURA_RAID && m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000004000000))
                 // only for main totem spell cast
                 AddTriggeredSpell(30708);                   // Totem of Wrath
-            break;
-        }
-        case SPELLFAMILY_WARRIOR:
-        {
-            // Shattering Throw
-            if (m_spellInfo->Id == 64382)
-                AddPrecastSpell(64380);                     // Shattering Throw
             break;
         }
         default:
