@@ -6394,6 +6394,28 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     triggered_spell_id = 32747;
                     break;
                 }
+                // Glyph of Shred
+                case 54815:
+                {
+                    if (Aura * aurEff = pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE,SPELLFAMILY_DRUID,0x00800000,0,this->GetGUID()))
+                    {
+                        uint32 countMin = aurEff->GetAuraMaxDuration();
+                        uint32 countMax = 20000;
+                        countMax += this->HasAura(54818) ? 4000 : 0;
+                        countMax += this->HasAura(60141) ? 4000 : 0;
+
+                        if (countMin < countMax)
+                        {
+                            aurEff->SetAuraDuration(uint32(aurEff->GetAuraDuration()+2000));
+                            aurEff->SetAuraMaxDuration(countMin+2000);
+                            aurEff->SendAuraUpdate(false);
+                        }
+                            return true;
+                    }
+                    else
+                        return false;
+                    break;
+                }
                 // Glyph of Starfire
                 case 54845:
                 {
@@ -6522,6 +6544,27 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                         return false;
 
                     triggered_spell_id = 32747;
+                    break;
+                }
+                // Glyph of Backstab
+                case 56800:
+                {
+                    if (Aura * aurEff = pVictim->GetAura(SPELL_AURA_PERIODIC_DAMAGE,SPELLFAMILY_ROGUE,0x00100000,0,this->GetGUID()))
+                    {
+                        uint32 countMin = aurEff->GetAuraMaxDuration();
+                        uint32 countMax = 12000;
+                        countMax += this->HasAura(56801) ? 4000 : 0;
+
+                        if (countMin < countMax)
+                        {
+                            aurEff->SetAuraDuration(uint32(aurEff->GetAuraDuration()+2000));
+                            aurEff->SetAuraMaxDuration(countMin+2000);
+                            aurEff->SendAuraUpdate(false);
+                        }
+                            return true;
+                    }
+                    else
+                        return false;
                     break;
                 }
             }
