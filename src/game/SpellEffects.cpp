@@ -6194,8 +6194,8 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                        if (const SpellEntry *pSpell = sSpellStore.LookupEntry(spellID))
                       {
 
-                        //damage = owner->CalculateSpellDamage(pSpell, EFFECT_INDEX_0, pSpell->EffectBasePoints[EFFECT_INDEX_0], unitTarget);
-                        damage = owner->SpellDamageBonus(unitTarget, pSpell, pSpell->EffectBasePoints[EFFECT_INDEX_0], DOT);
+                        damage = owner->SpellHealingBonusDone(unitTarget, pSpell, pSpell->EffectBasePoints[EFFECT_INDEX_0], DOT);
+                        damage = unitTarget->SpellHealingBonusTaken(owner, pSpell, damage, DOT);
 
                         if (Aura *dummy = owner->GetDummyAura(55673))
                            damage += damage * dummy->GetModifier()->m_amount /100.0f;
