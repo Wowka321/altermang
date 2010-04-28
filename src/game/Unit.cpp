@@ -10557,6 +10557,13 @@ uint32 Unit::SpellHealingBonusTaken(Unit *pCaster, SpellEntry const *spellProto,
         if ((*i)->isAffectedOnSpell(spellProto))
             TakenTotalMod *= ((*i)->GetModifier()->m_amount + 100.0f) / 100.0f;
 
+    if (damagetype == DOT)
+    {
+        AuraList const& mDecreaseHealingDoT = GetAurasByType(SPELL_AURA_DECREASE_PERIODIC_HEAL);
+        for(AuraList::const_iterator i = mDecreaseHealingDoT.begin(); i != mDecreaseHealingDoT.end(); ++i)
+            TakenTotalMod *= ((*i)->GetModifier()->m_amount + 100.0f) / 100.0f;
+    }
+
     // use float as more appropriate for negative values and percent applying
     float heal = (healamount + TakenTotal * stack) * TakenTotalMod;
 
