@@ -1451,6 +1451,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     if( spellInfo_1->SpellIconID == 2010 && spellInfo_2->SpellIconID == 2010 )
                         return false;
 
+                    // Burning Bile and Paralytic Toxin
+                    if( spellInfo_1->SpellIconID == 1719 && spellInfo_2->SpellIconID == 2998 ||
+                        spellInfo_2->SpellIconID == 1719 && spellInfo_1->SpellIconID == 2998 )
+                        return true;
+
                     // Kindred Spirits
                     if( spellInfo_1->SpellIconID == 3559 && spellInfo_2->SpellIconID == 3559 )
                         return false;
