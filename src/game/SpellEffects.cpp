@@ -532,9 +532,7 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     // found Immolate or Shadowflame
                     if (aura)
                     {
-                        // DoT not have applied spell bonuses in m_amount
-                        int32 damagetick = m_caster->SpellDamageBonusDone(unitTarget, aura->GetSpellProto(), aura->GetModifier()->m_amount, DOT);
-                        damagetick = unitTarget->SpellDamageBonusTaken(m_caster, aura->GetSpellProto(), damagetick, DOT);
+                        int32 damagetick = aura->GetModifier()->m_amount;
                         // Save value of further damage
                         m_currentBasePoints[1] = damagetick * 2 / 3;
                         damage += damagetick * 3;
@@ -5953,6 +5951,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, damage, false);
                     break;
                 }
+<<<<<<< HEAD:src/game/SpellEffects.cpp
                 case 48025:                                 // Headless Horseman Mount
                 {
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
@@ -6010,6 +6009,22 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                             unitTarget->CastSpell(unitTarget, 58997, true);
                     }
                     return;
+                }
+                case 52941:                                 // Song of Cleansing
+                {
+                    uint32 spellId = 0;
+
+                    switch(m_caster->GetAreaId())
+                    {
+                        case 4385: spellId = 52954; break;  // Bittertide Lake
+                        case 4290: spellId = 52958; break;  // River's Heart
+                        case 4388: spellId = 52959; break;  // Wintergrasp River
+                    }
+
+                    if (spellId)
+                        m_caster->CastSpell(m_caster, spellId, true);
+
+                    break;
                 }
                 case 54729:                                 // Winged Steed of the Ebon Blade
                 {
