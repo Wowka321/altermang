@@ -7599,6 +7599,12 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 triggered_spell_id = dummySpell->EffectTriggerSpell[effIndex];
                 break;
             }
+            // Hungering Cold - not break from diseases
+            if (dummySpell->SpellIconID == 2797)
+            {
+                if (procSpell && procSpell->Dispel == DISPEL_DISEASE)
+                    return false;
+            }
             break;
         }
         default:
@@ -13450,6 +13456,7 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
             case SPELL_AURA_MOD_DAMAGE_PERCENT_TAKEN:
             case SPELL_AURA_MANA_SHIELD:
             case SPELL_AURA_OBS_MOD_MANA:
+            case SPELL_AURA_MOD_STUN:
             case SPELL_AURA_ADD_PCT_MODIFIER:
             case SPELL_AURA_DUMMY:
             {
