@@ -5951,7 +5951,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, damage, false);
                     break;
                 }
-<<<<<<< HEAD:src/game/SpellEffects.cpp
                 case 48025:                                 // Headless Horseman Mount
                 {
                     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
