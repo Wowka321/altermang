@@ -55,6 +55,8 @@
 #include "SkillDiscovery.h"
 #include "Formulas.h"
 #include "GridNotifiers.h"
+#include "GridNotifiersImpl.h"
+#include "CellImpl.h"
 
 pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
 {
@@ -1633,6 +1635,33 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 {
                     // Runeforging Credit
                     m_caster->CastSpell(m_caster, 54586, true);
+                    return;
+                }
+                case 53808:                                 // Pygmy Oil
+                {
+                    const SpellEntry *pSpellShrink = sSpellStore.LookupEntry(53805);
+                    const SpellEntry *pSpellTransf = sSpellStore.LookupEntry(53806);
+
+                    if (!pSpellTransf || !pSpellShrink)
+                        return;
+
+                    if (Aura* pAura = m_caster->GetAura(pSpellShrink->Id, EFFECT_INDEX_0))
+                    {
+                        uint8 stackNum = pAura->GetStackAmount();
+
+                        // chance to become pygmified (5, 10, 15 etc)
+                        if (roll_chance_i(stackNum*5))
+                        {
+                            m_caster->RemoveAurasDueToSpell(pSpellShrink->Id);
+                            m_caster->CastSpell(m_caster, pSpellTransf, true);
+                            return;
+                        }
+                    }
+
+                    if (m_caster->HasAura(pSpellTransf->Id, EFFECT_INDEX_0))
+                        return;
+
+                    m_caster->CastSpell(m_caster, pSpellShrink, true);
                     return;
                 }
                 case 55004:                                 // Nitro Boosts
