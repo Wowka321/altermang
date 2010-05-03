@@ -2272,6 +2272,13 @@ void Aura::TriggerSpell()
             case 48094:
                 target->CastSpell(target, trigger_spell_id, true, NULL, this);
                 return;
+            // Rod of Purification - for quest 10839 (Veil Skith: Darkstone of Terokk)
+            case 38736:
+            {
+                if(Unit* caster = GetCaster())
+                    caster->CastSpell(target, trigger_spell_id, true, NULL, this);
+                return;
+            }
             // Beacon of Light
             case 53563:
                 // original caster must be target (beacon)
