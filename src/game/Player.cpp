@@ -6547,21 +6547,6 @@ bool Player::RewardHonor(Unit *uVictim, uint32 groupsize, float honor)
             honor = ((f * diff_level * (190 + v_rank*10))/6);
             honor *= ((float)k_level) / 70.0f;              //factor of dependence on levels of the killer
 
-            if(InBattleGround()) //Holidays battleground bonus
-            {
-                // Events
-                uint16 m_event = 0;
-                switch(GetMapId())
-                {
-                    case 30:  m_event = 18; break;
-                    case 489: m_event = 19; break;
-                    case 529: m_event = 20; break;
-                    case 566: m_event = 21; break;
-                }
-                if(sGameEventMgr.IsActiveEvent(m_event))
-                    honor *= 1.5;
-            }
-
             // count the number of playerkills in one day
             ApplyModUInt32Value(PLAYER_FIELD_KILLS, 1, true);
             // and those in a lifetime
