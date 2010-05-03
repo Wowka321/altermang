@@ -12026,7 +12026,7 @@ void Unit::setDeathState(DeathState s)
 
     if (m_deathState != ALIVE && s == ALIVE)
     {
-        //_ApplyAllAuraMods();
+        SetDisplayId(GetNativeDisplayId());
     }
     m_deathState = s;
 }
