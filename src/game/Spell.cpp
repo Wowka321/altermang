@@ -440,6 +440,42 @@ WorldObject* Spell::FindCorpseUsing()
     return result;
 }
 
+void Spell::FillCustomTargetMap(SpellEffectIndex eff_idx, UnitList &targetUnitMap)
+{
+    float radius;
+    if (m_spellInfo->EffectRadiusIndex[eff_idx])
+        radius = GetSpellRadius(sSpellRadiusStore.LookupEntry(m_spellInfo->EffectRadiusIndex[eff_idx]));
+    else
+        radius = GetSpellMaxRange(sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex));
+    // Resulting effect depends on spell that we want to cast
+    switch (m_spellInfo->Id)
+    {
+        case 46584: // Raise Dead
+        {
+            WorldObject* result = FindCorpseUsing <MaNGOS::RaiseDeadObjectCheck>  ();
+
+            if(result)
+            {
+                switch(result->GetTypeId())
+                {
+                    case TYPEID_UNIT:
+                        targetUnitMap.push_back((Unit*)result);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            break;
+        }
+        case 47496: // Ghoul's explode
+        {
+            FillAreaTargets(targetUnitMap,m_targets.m_destX, m_targets.m_destY,radius,PUSH_DEST_CENTER,SPELL_TARGETS_AOE_DAMAGE);
+            break;
+        }
+        break;
+    }
+}
+
 void Spell::FillTargetMap()
 {
     // TODO: ADD the correct target FILLS!!!!!!
@@ -504,6 +540,11 @@ void Spell::FillTargetMap()
                 }
                 break;
             case TARGET_EFFECT_SELECT:
+                if (m_spellInfo->Id == 46584 || m_spellInfo->Id == 47496)
+                {
+                    FillCustomTargetMap(SpellEffectIndex(i) ,tmpUnitMap);
+                    break;
+                }
                 switch(m_spellInfo->EffectImplicitTargetB[i])
                 {
                     case 0:
@@ -1745,43 +1786,92 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 break;
             }
 
-            UnitList tempTargetUnitMap;
-            SpellScriptTargetBounds bounds = sSpellMgr.GetSpellScriptTargetBounds(m_spellInfo->Id);
-            // fill real target list if no spell script target defined
-            FillAreaTargets(bounds.first != bounds.second ? tempTargetUnitMap : targetUnitMap, m_targets.m_destX, m_targets.m_destY, radius, PUSH_DEST_CENTER, SPELL_TARGETS_ALL);
-           
-            if (!tempTargetUnitMap.empty())
+            switch (m_spellInfo->SpellFamilyName)
             {
-                for (UnitList::const_iterator iter = tempTargetUnitMap.begin(); iter != tempTargetUnitMap.end(); ++iter)
+                case SPELLFAMILY_DEATHKNIGHT:
                 {
-                    if ((*iter)->GetTypeId() != TYPEID_UNIT)
-                        continue;
-
-                    for(SpellScriptTarget::const_iterator i_spellST = bounds.first; i_spellST != bounds.second; ++i_spellST)
+                    switch (m_spellInfo->SpellIconID)
                     {
-                        // only creature entries supported for this target type
-                        if (i_spellST->second.type == SPELL_TARGET_TYPE_GAMEOBJECT)
-                            continue;
-
-                        if ((*iter)->GetEntry() == i_spellST->second.targetEntry)
+                        case 1737: // Corpse Explosion
                         {
-                            targetUnitMap.push_back((*iter));
+                            // if not our ghoul AND
+                            if (!(m_targets.getUnitTarget()->GetEntry() == 26125 && m_targets.getUnitTarget()->GetOwnerGUID() == m_caster->GetGUID()) &&
+                                // alive target or not suitable corpse
+                                ( ((Creature*)m_targets.getUnitTarget())->isDeadByDefault() ||
+                                (m_targets.getUnitTarget()->getDeathState() != CORPSE && m_targets.getUnitTarget()->getDeathState() != GHOULED) ||
+                                (m_targets.getUnitTarget()->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL)!=0 ||
+                                (m_targets.getUnitTarget()->GetDisplayId() != m_targets.getUnitTarget()->GetNativeDisplayId()) ))
+                            {
+                                targetUnitMap.clear();
+                                CleanupTargetList();
+
+                                WorldObject* result = FindCorpseUsing <MaNGOS::ExplodeCorpseObjectCheck> ();
+
+                                if(result)
+                                {
+                                    switch(result->GetTypeId())
+                                    {
+                                        case TYPEID_UNIT:
+                                        case TYPEID_PLAYER:
+                                            targetUnitMap.push_back((Unit*)result);
+                                            break;
+                                    }
+                                }
+                                else
+                                {
+                                    if (m_caster->GetTypeId()==TYPEID_PLAYER)
+                                        ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id,true);
+                                    SendCastResult(SPELL_FAILED_CANT_DO_THAT_RIGHT_NOW);
+                                    finish(false);
+                                }
+                            }
                             break;
                         }
                     }
+                    break;
                 }
-            }
-            else
-            {
-                // remove not targetable units if spell has no script targets
-                for (UnitList::iterator itr = targetUnitMap.begin(); itr != targetUnitMap.end(); )
+                default :
                 {
-                    if (!(*itr)->isTargetableForAttack(m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_CAST_ON_DEAD))
-                        targetUnitMap.erase(itr++);
+                    UnitList tempTargetUnitMap;
+                    SpellScriptTargetBounds bounds = sSpellMgr.GetSpellScriptTargetBounds(m_spellInfo->Id);
+                    // fill real target list if no spell script target defined
+                    FillAreaTargets(bounds.first != bounds.second ? tempTargetUnitMap : targetUnitMap, m_targets.m_destX, m_targets.m_destY, radius, PUSH_DEST_CENTER, SPELL_TARGETS_ALL);
+           
+                    if (!tempTargetUnitMap.empty())
+                    {
+                        for (UnitList::const_iterator iter = tempTargetUnitMap.begin(); iter != tempTargetUnitMap.end(); ++iter)
+                        {
+                            if ((*iter)->GetTypeId() != TYPEID_UNIT)
+                                continue;
+
+                            for(SpellScriptTarget::const_iterator i_spellST = bounds.first; i_spellST != bounds.second; ++i_spellST)
+                            {
+                                // only creature entries supported for this target type
+                                if (i_spellST->second.type == SPELL_TARGET_TYPE_GAMEOBJECT)
+                                    continue;
+
+                                if ((*iter)->GetEntry() == i_spellST->second.targetEntry)
+                                {
+                                    targetUnitMap.push_back((*iter));
+                                    break;
+                                }
+                            }
+                        }
+                    }
                     else
-                        ++itr;
-                }
-            }
+                    {
+                        // remove not targetable units if spell has no script targets
+                        for (UnitList::iterator itr = targetUnitMap.begin(); itr != targetUnitMap.end(); )
+                        {
+                            if (!(*itr)->isTargetableForAttack(m_spellInfo->AttributesEx3 & SPELL_ATTR_EX3_CAST_ON_DEAD))
+                                targetUnitMap.erase(itr++);
+                            else
+                                ++itr;
+                        }
+                    }
+                    break;
+                 }
+             }
             break;
         }
         case TARGET_ALL_ENEMY_IN_AREA_INSTANT:
