@@ -4872,7 +4872,10 @@ void Aura::HandlePeriodicTriggerSpell(bool apply, bool /*Real*/)
                     if (Unit* pCaster = GetCaster())
                         pCaster->CastSpell(m_target, m_spellProto->EffectTriggerSpell[GetEffIndex()], true, NULL, this);
                 }
-
+                return;
+            case 62776:                                     //Tympanic Tantrum
+                    if (Unit* pCaster = GetCaster())
+                        pCaster->CastSpell(m_target, m_spellProto->EffectTriggerSpell[GetEffIndex()], true, NULL, this);
                 return;
             default:
                 break;
