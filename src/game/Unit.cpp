@@ -5356,6 +5356,12 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     triggered_spell_id = 25997;
                     break;
                 }
+                case 12311: // Gag Order rank 1
+                case 12958: // Gag Order rank 2
+                {
+                    triggered_spell_id = 18498;
+                    break;
+                }
                 // Sweeping Strikes (NPC spells may be)
                 case 18765:
                 case 35429:
@@ -5980,6 +5986,20 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 break;
             }
 
+            // Sweeping Strikes
+            if (dummySpell->Id == 12328)
+            {
+                // prevent chain of triggered spell from same triggered spell
+                if(procSpell && procSpell->Id == 26654)
+                    return false;
+
+                target = SelectRandomUnfriendlyTarget(pVictim);
+                if(!target)
+                    return false;
+
+                triggered_spell_id = 26654;
+                break;
+            }
             // Sweeping Strikes
             if (dummySpell->Id == 12328)
             {
