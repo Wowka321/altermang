@@ -566,6 +566,16 @@ void BattleGroundWS::UpdatePlayerScore(Player *Source, uint32 type, uint32 value
             break;
         case SCORE_FLAG_RETURNS:                            // flags returned
             ((BattleGroundWGScore*)itr->second)->FlagReturns += value;
+
+        //Achievememt Return a fallen flag in Warsong Gulch
+        if (Pet* pet = Source->GetMiniPet())
+        {
+            uint32 entry = pet->GetEntry();
+
+            if (entry == 14444 || entry == 22818 || entry == 14305 || entry == 22817)
+                Source->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, 44);
+
+        }
             break;
         default:
             BattleGround::UpdatePlayerScore(Source, type, value);

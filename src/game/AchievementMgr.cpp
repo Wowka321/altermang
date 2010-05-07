@@ -1421,6 +1421,13 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_GOLD_VALUE_OWNED:
                 SetCriteriaProgress(achievementCriteria, GetPlayer()->GetMoney(), PROGRESS_HIGHEST);
                 break;
+            case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
+            {
+                if (!miscvalue1 || miscvalue1 != achievementCriteria->raw.field3)
+                    continue;
+                SetCriteriaProgress(achievementCriteria, 1);
+                break;
+            }
             // std case: not exist in DBC, not triggered in code as result
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_HEALTH:
             case ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_SPELLPOWER:
@@ -1432,7 +1439,6 @@ void AchievementMgr::UpdateAchievementCriteria(AchievementCriteriaTypes type, ui
             // FIXME: not triggered in code as result, need to implement
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_DAILY_QUEST_DAILY:
             case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_RAID:
-            case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
             case ACHIEVEMENT_CRITERIA_TYPE_HONORABLE_KILL_AT_AREA:
             case ACHIEVEMENT_CRITERIA_TYPE_WIN_ARENA:
             case ACHIEVEMENT_CRITERIA_TYPE_PLAY_ARENA:
@@ -1588,6 +1594,8 @@ bool AchievementMgr::IsCompletedCriteria(AchievementCriteriaEntry const* achieve
             return progress->counter >= achievementCriteria->learn_skill_line.spellCount;
         case ACHIEVEMENT_CRITERIA_TYPE_EARN_HONORABLE_KILL:
             return progress->counter >= achievementCriteria->honorable_kill.killCount;
+        case ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE:
+            return progress->counter >= 1;
 
         // handle all statistic-only criteria here
         case ACHIEVEMENT_CRITERIA_TYPE_COMPLETE_BATTLEGROUND:
@@ -1694,7 +1702,7 @@ bool AchievementMgr::IsCompletedAchievement(AchievementEntry const* entry)
 
         // completed as have req. count of completed criterias
         if(achievementForTestCount > 0 && achievementForTestCount <= count)
-            return true;
+           return true;
     }
 
     // all criterias completed requirement

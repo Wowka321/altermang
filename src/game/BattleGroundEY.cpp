@@ -545,6 +545,15 @@ void BattleGroundEY::EventPlayerClickedOnFlag(Player *Source, GameObject* target
         PSendMessageToAll(LANG_BG_EY_HAS_TAKEN_FLAG, CHAT_MSG_BG_SYSTEM_ALLIANCE, NULL, Source->GetName());
     else
         PSendMessageToAll(LANG_BG_EY_HAS_TAKEN_FLAG, CHAT_MSG_BG_SYSTEM_HORDE, NULL, Source->GetName());
+
+   // Achievement Capture the flag in Eye of the Storm
+   if (Pet* pet = Source->GetMiniPet())
+   {
+       uint32 entry = pet->GetEntry();
+
+       if (entry == 14444 || entry == 22818 || entry == 14305 || entry == 22817)
+                Source->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, 183);
+   }
 }
 
 void BattleGroundEY::EventTeamLostPoint(Player *Source, uint32 Point)
