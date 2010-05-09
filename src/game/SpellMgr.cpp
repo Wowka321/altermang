@@ -1394,6 +1394,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             {
                 case SPELLFAMILY_GENERIC:                   // same family case
                 {
+                    // Scroll of Agility Ranks
+                    if( spellInfo_1->SpellIconID == 240 && spellInfo_1->SpellVisual[0] == 78 &&
+                        spellInfo_2->SpellIconID == 240 && spellInfo_2->SpellVisual[0] == 78)
+                        return true;
+
                     // Dark Essence & Light Essence
                     if ((spellInfo_1->Id == 65684 && spellInfo_2->Id == 65686) ||
                         (spellInfo_2->Id == 65684 && spellInfo_1->Id == 65686))
