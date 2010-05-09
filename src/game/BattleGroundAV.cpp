@@ -595,15 +595,7 @@ void BattleGroundAV::EventPlayerAssaultsPoint(Player* player, BG_AV_Nodes node)
             GetNodeName(node),
             ( team == BG_TEAM_ALLIANCE ) ? LANG_BG_ALLY:LANG_BG_HORDE);
         UpdatePlayerScore(player, SCORE_TOWERS_ASSAULTED, 1);
-
-        //Achievememt Assault a tower in Alterac Valley
-        if (Pet* pet = player->GetMiniPet())
-        {
-            uint32 entry = pet->GetEntry();
-
-            if (entry == 14444 || entry == 22818 || entry == 14305 || entry == 22817)
-                player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, 61);
-        }
+        player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, 61);
     }
     else
     {
@@ -612,6 +604,7 @@ void BattleGroundAV::EventPlayerAssaultsPoint(Player* player, BG_AV_Nodes node)
             ( team == BG_TEAM_ALLIANCE ) ? LANG_BG_ALLY:LANG_BG_HORDE);
         // update the statistic for the assaulting player
         UpdatePlayerScore(player, SCORE_GRAVEYARDS_ASSAULTED, 1);
+        player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, 63);
     }
 
     PlaySoundToAll((team == BG_TEAM_ALLIANCE) ? BG_AV_SOUND_ALLIANCE_ASSAULTS : BG_AV_SOUND_HORDE_ASSAULTS);

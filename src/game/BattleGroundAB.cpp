@@ -547,18 +547,11 @@ void BattleGroundAB::UpdatePlayerScore(Player *Source, uint32 type, uint32 value
     {
         case SCORE_BASES_ASSAULTED:
             ((BattleGroundABScore*)itr->second)->BasesAssaulted += value;
-
-        //Achievememt Assault a flag in Arathi Basin
-        if (Pet* pet = Source->GetMiniPet())
-        {
-            uint32 entry = pet->GetEntry();
-
-            if (entry == 14444 || entry == 22818 || entry == 14305 || entry == 22817)
-                Source->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, 122);
-        }
+             Source->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, 122);
             break;
         case SCORE_BASES_DEFENDED:
             ((BattleGroundABScore*)itr->second)->BasesDefended += value;
+             Source->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, 123);
             break;
         default:
             BattleGround::UpdatePlayerScore(Source,type,value);
