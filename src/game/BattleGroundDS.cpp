@@ -20,6 +20,9 @@
 #include "BattleGround.h"
 #include "BattleGroundDS.h"
 #include "Language.h"
+#include "Object.h"
+#include "ObjectMgr.h"
+#include "WorldPacket.h"
 
 BattleGroundDS::BattleGroundDS()
 {
@@ -43,6 +46,51 @@ BattleGroundDS::~BattleGroundDS()
 void BattleGroundDS::Update(uint32 diff)
 {
     BattleGround::Update(diff);
+	if (GetStatus() == STATUS_IN_PROGRESS)
+    {
+        // first knockback
+        if(m_uiKnockback < diff && KnockbackCheck)
+        {
+            //dalaran sewers = 617;
+            for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+            {
+                Player * plr = sObjectMgr.GetPlayer(itr->first);
+                if (plr->GetDistance2d(1214, 765) <= 50 && plr->GetPositionZ() > 10)
+                    plr->KnockBackPlayerWithAngle(6.40f, 55, 7);
+                if (plr->GetDistance2d(1369, 817) <= 50 && plr->GetPositionZ() > 10)
+                    plr->KnockBackPlayerWithAngle(3.03f, 55, 7);
+            }
+            KnockbackCheck = false;
+                       
+        }else m_uiKnockback -= diff;
+
+        // just for sure if knockback wont work from any reason teleport down
+        if(m_uiTeleport < diff && TeleportCheck)
+        {
+            //dalaran sewers = 617;
+            for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+            {
+                Player * plr = sObjectMgr.GetPlayer(itr->first);
+                if (plr->GetDistance2d(1214, 765) <= 50 && plr->GetPositionZ() > 10)
+                    plr->TeleportTo(617, 1257+urand(0,2), 761+urand(0,2), 3.2f, 0.5f);
+                if (plr->GetDistance2d(1369, 817) <= 50 && plr->GetPositionZ() > 10)
+                    plr->TeleportTo(617, 1328+urand(0,2), 815+urand(0,2), 3.2f, 3.5f);
+            }
+            TeleportCheck = false;
+            // close the gate
+            OpenDoorEvent(BG_EVENT_DOOR);
+        }else m_uiTeleport -= diff;
+
+		if (m_uiFall < diff)
+		{
+			for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+			{
+				Player * plr = sObjectMgr.GetPlayer(itr->first);
+				if (plr->GetPositionZ() < 0.5)
+					plr->TeleportTo(617, plr->GetPositionX(), plr->GetPositionY(), plr->GetPositionZ() + 8, plr->GetOrientation());
+			}
+		}else m_uiFall -= diff;
+    }
 }
 
 void BattleGroundDS::StartingEventCloseDoors()
@@ -51,6 +99,7 @@ void BattleGroundDS::StartingEventCloseDoors()
 
 void BattleGroundDS::StartingEventOpenDoors()
 {
+    OpenDoorEvent(BG_EVENT_DOOR);
 }
 
 void BattleGroundDS::AddPlayer(Player *plr)
@@ -60,19 +109,77 @@ void BattleGroundDS::AddPlayer(Player *plr)
     BattleGroundDSScore* sc = new BattleGroundDSScore;
 
     m_PlayerScores[plr->GetGUID()] = sc;
+
+    UpdateWorldState(0xe11, GetAlivePlayersCountByTeam(ALLIANCE));
+    UpdateWorldState(0xe10, GetAlivePlayersCountByTeam(HORDE));
 }
 
 void BattleGroundDS::RemovePlayer(Player * /*plr*/, uint64 /*guid*/)
 {
+    if (GetStatus() == STATUS_WAIT_LEAVE)
+        return;
+
+    UpdateWorldState(0xe11, GetAlivePlayersCountByTeam(ALLIANCE));
+    UpdateWorldState(0xe10, GetAlivePlayersCountByTeam(HORDE));
+    CheckArenaWinConditions();
 }
 
 void BattleGroundDS::HandleKillPlayer(Player* player, Player* killer)
 {
-    BattleGround::HandleKillPlayer(player, killer);
+    if (GetStatus() != STATUS_IN_PROGRESS)
+        return;
+
+    if (!killer)
+    {
+        sLog.outError("BattleGroundDS: Killer player not found");
+        return;
+    }
+
+    BattleGround::HandleKillPlayer(player,killer);
+
+    UpdateWorldState(0xe11, GetAlivePlayersCountByTeam(ALLIANCE));
+    UpdateWorldState(0xe10, GetAlivePlayersCountByTeam(HORDE));
+    CheckArenaWinConditions();
 }
 
-void BattleGroundDS::HandleAreaTrigger(Player * /*Source*/, uint32 /*Trigger*/)
+void BattleGroundDS::HandleAreaTrigger(Player *Source, uint32 Trigger)
 {
+    if (GetStatus() != STATUS_IN_PROGRESS)
+        return;
+
+    switch(Trigger)
+    {
+        case 5347:
+        case 5348:
+            break;
+        default:
+            sLog.outError("WARNING: Unhandled AreaTrigger in Battleground: %u", Trigger);
+            Source->GetSession()->SendAreaTriggerMessage("Warning: Unhandled AreaTrigger in Battleground: %u", Trigger);
+            break;
+    }
+}
+
+bool BattleGroundDS::HandlePlayerUnderMap(Player *player)
+{
+    player->TeleportTo(GetMapId(), 1299.046f, 784.825f, 9.338f, 2.422f, false);
+    return true;
+}
+
+void BattleGroundDS::FillInitialWorldStates(WorldPacket &data)
+{
+    data << uint32(0xe11) << uint32(GetAlivePlayersCountByTeam(ALLIANCE));           // 7
+    data << uint32(0xe10) << uint32(GetAlivePlayersCountByTeam(HORDE));           // 8
+    data << uint32(3610) << uint32(1);           // 9
+}
+void BattleGroundDS::Reset()
+{
+    //call parent's class reset
+    BattleGround::Reset();
+    m_uiTeleport = 5000;
+    TeleportCheck = true;
+    m_uiKnockback = 3000;
+    KnockbackCheck = true;
+    m_uiFall = 3000;
 }
 
 bool BattleGroundDS::SetupBattleGround()

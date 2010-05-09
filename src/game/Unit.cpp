@@ -14641,7 +14641,26 @@ void Unit::KnockBackFrom(Unit* target, float horizontalSpeed, float verticalSpee
         SendMonsterMoveJump(fx, fy, fz, verticalSpeed, SPLINEFLAG_WALKMODE, uint32(time * 1000.0f));
     }
 }
+void Unit::KnockBackPlayerWithAngle(float angle, float horizontalSpeed, float verticalSpeed)
+{
+    float vsin = sin(angle);
+    float vcos = cos(angle);
 
+    // Effect propertly implemented only for players
+    if(GetTypeId()==TYPEID_PLAYER)
+    {
+        WorldPacket data(SMSG_MOVE_KNOCK_BACK, 8+4+4+4+4+4);
+        data << GetPackGUID();
+        data << uint32(0);                                  // Sequence
+        data << float(vcos);                                // x direction
+        data << float(vsin);                                // y direction
+        data << float(horizontalSpeed);                     // Horizontal speed
+        data << float(-verticalSpeed);                      // Z Movement speed (vertical)
+        ((Player*)this)->GetSession()->SendPacket(&data);
+    }
+    else
+        sLog.outError("KnockBackPlayer: Target of KnockBackPlayer must be player!");
+}
 float Unit::GetCombatRatingReduction(CombatRating cr) const
 {
     if (GetTypeId() == TYPEID_PLAYER)

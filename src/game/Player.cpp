@@ -47,6 +47,7 @@
 #include "Formulas.h"
 #include "Group.h"
 #include "Guild.h"
+#include "GameEventMgr.h"
 #include "Pet.h"
 #include "Util.h"
 #include "Transports.h"
