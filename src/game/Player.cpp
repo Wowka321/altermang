@@ -1895,6 +1895,8 @@ bool Player::TeleportTo(uint32 mapid, float x, float y, float z, float orientati
 
             //remove auras before removing from map...
             RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_CHANGE_MAP | AURA_INTERRUPT_FLAG_MOVE | AURA_INTERRUPT_FLAG_TURNING);
+            RemoveAurasDueToSpell(SPELL_ARENA_DAMPENING);
+            RemoveAurasDueToSpell(SPELL_BG_DAMPENING);
 
             if(!GetSession()->PlayerLogout())
             {
