@@ -725,8 +725,9 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                 if (m_spellInfo->Id == 20187)
                 {
                     float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                    int32 holy = m_caster->SpellBaseDamageBonusDone(GetSpellSchoolMask(m_spellInfo)) +
-                                 unitTarget->SpellBaseDamageBonusTaken(GetSpellSchoolMask(m_spellInfo));
+                    int32 holy = m_caster->SpellBaseDamageBonusDone(GetSpellSchoolMask(m_spellInfo));
+                    if (holy < 0)
+                        holy = 0;
                     damage += int32(ap * 0.2f) + int32(holy * 32 / 100);
                 }
                 // Judgement of Vengeance/Corruption ${1+0.22*$SPH+0.14*$AP} + 10% for each application of Holy Vengeance/Blood Corruption on the target
@@ -741,8 +742,9 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     }
 
                     float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                    int32 holy = m_caster->SpellBaseDamageBonusDone(GetSpellSchoolMask(m_spellInfo)) +
-                                 unitTarget->SpellBaseDamageBonusTaken(GetSpellSchoolMask(m_spellInfo));
+                    int32 holy = m_caster->SpellBaseDamageBonusDone(GetSpellSchoolMask(m_spellInfo));
+                    if (holy < 0)
+                        holy = 0;
                     damage+=int32(ap * 0.14f) + int32(holy * 22 / 100);
                     // Get stack of Holy Vengeance on the target added by caster
                     uint32 stacks = 0;
@@ -763,16 +765,18 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                 else if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000000004000))
                 {
                     float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                    int32 holy = m_caster->SpellBaseDamageBonusDone(GetSpellSchoolMask(m_spellInfo)) +
-                                 unitTarget->SpellBaseDamageBonusTaken(GetSpellSchoolMask(m_spellInfo));
+                    int32 holy = m_caster->SpellBaseDamageBonusDone(GetSpellSchoolMask(m_spellInfo));
+                    if (holy < 0)
+                        holy = 0;
                     damage += int32(ap * 0.07f) + int32(holy * 7 / 100);
                 }
                 // Hammer of Wrath ($m1+0.15*$SPH+0.15*$AP) - ranged type sdb future fix
                 else if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000008000000000))
                 {
                     float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                    int32 holy = m_caster->SpellBaseDamageBonusDone(GetSpellSchoolMask(m_spellInfo)) +
-                                 unitTarget->SpellBaseDamageBonusTaken(GetSpellSchoolMask(m_spellInfo));
+                    int32 holy = m_caster->SpellBaseDamageBonusDone(GetSpellSchoolMask(m_spellInfo));
+                    if (holy < 0)
+                        holy = 0;
                     damage += int32(ap * 0.15f) + int32(holy * 15 / 100);
                 }
                 // Hammer of the Righteous
@@ -1376,6 +1380,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 case 51592:                                 // Pickup Primordial Hatchling
                 case 51961:                                 // Captured Chicken Cover
                 case 55364:                                 // Create Ghoul Drool Cover
+                case 61832:                                 // Rifle the Bodies: Create Magehunter Personal Effects Cover
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT || m_caster->GetTypeId() != TYPEID_PLAYER)
                         return;
@@ -1390,6 +1395,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                         case 51592: spellId = 51593; break;
                         case 51961: spellId = 51037; break;
                         case 55364: spellId = 55363; break;
+                        case 61832: spellId = 47096; break;
                     }
 
                     if (const SpellEntry *pSpell = sSpellStore.LookupEntry(spellId))
@@ -1582,6 +1588,30 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                        else
                             ((Player*)unitTarget)->KilledMonsterCredit(entry, 0);
                     }
+                    return;
+                }
+                case 51840:                                 // Despawn Fruit Tosser
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    if (roll_chance_i(20))
+                    {
+                        // summon NPC, or...
+                        unitTarget->CastSpell(m_caster, 52070, true);
+                    }
+                    else
+                    {
+                        // ...drop banana, orange or papaya
+                        switch(urand(0,2))
+                        {
+                            case 0: unitTarget->CastSpell(m_caster, 51836, true); break;
+                            case 1: unitTarget->CastSpell(m_caster, 51837, true); break;
+                            case 2: unitTarget->CastSpell(m_caster, 51839, true); break;
+                        }
+                    }
+
+                    ((Creature*)unitTarget)->ForcedDespawn();
                     return;
                 }
                 case 52308:                                 // Take Sputum Sample
@@ -3240,8 +3270,9 @@ void Spell::EffectHeal(SpellEffectIndex /*eff_idx*/)
         if (m_spellInfo->Id == 20167)
         {
             float ap = caster->GetTotalAttackPowerValue(BASE_ATTACK);
-            int32 holy = caster->SpellBaseHealingBonusDone(GetSpellSchoolMask(m_spellInfo)) +
-                         unitTarget->SpellBaseHealingBonusTaken(GetSpellSchoolMask(m_spellInfo));
+            int32 holy = caster->SpellBaseHealingBonusDone(GetSpellSchoolMask(m_spellInfo));
+            if (holy < 0)
+                holy = 0;
             addhealth += int32(ap * 0.15) + int32(holy * 15 / 100);
         }
         // Vessel of the Naaru (Vial of the Sunwell trinket)
@@ -3300,14 +3331,7 @@ void Spell::EffectHeal(SpellEffectIndex /*eff_idx*/)
 
             addhealth += tickheal * tickcount;
         }
-        else
-        {
-            addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL);
-            addhealth = unitTarget->SpellHealingBonusTaken(caster, m_spellInfo, addhealth, HEAL);
-        }
-
-        m_healing += addhealth;
-
+        
         // Chain Healing
         if (m_spellInfo->SpellFamilyName == SPELLFAMILY_SHAMAN && m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000000000100))
         {
@@ -3317,9 +3341,14 @@ void Spell::EffectHeal(SpellEffectIndex /*eff_idx*/)
             Aura* riptide = unitTarget->GetAura(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_SHAMAN, 0, 0x00000010, caster->GetGUID());
             if (!riptide)
                 return;
-            m_healing += m_healing/4;
+            addhealth += addhealth/4;
             unitTarget->RemoveAura(riptide);
         }
+
+        addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL);
+        addhealth = unitTarget->SpellHealingBonusTaken(caster, m_spellInfo, addhealth, HEAL);
+
+        m_healing += addhealth;
     }
 }
 
@@ -3333,8 +3362,9 @@ void Spell::EffectHealPct(SpellEffectIndex /*eff_idx*/)
             return;
 
         uint32 addhealth = unitTarget->GetMaxHealth() * damage / 100;
-        if (Player* modOwner = m_caster->GetSpellModOwner())
-            modOwner->ApplySpellMod(m_spellInfo->Id, SPELLMOD_DAMAGE, addhealth, this);
+        
+        addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL);
+        addhealth = unitTarget->SpellHealingBonusTaken(caster, m_spellInfo, addhealth, HEAL);
 
         int32 gain = caster->DealHeal(unitTarget, addhealth, m_spellInfo);
         if (m_spellInfo->Id !=61607)
@@ -3384,7 +3414,6 @@ void Spell::EffectHealthLeech(SpellEffectIndex eff_idx)
     int32 heal = int32(damage*multiplier);
     if (m_caster->isAlive())
     {
-        heal = m_caster->SpellHealingBonusDone(m_caster, m_spellInfo, heal, HEAL);
         heal = m_caster->SpellHealingBonusTaken(m_caster, m_spellInfo, heal, HEAL);
 
         m_caster->DealHeal(m_caster, heal, m_spellInfo);
@@ -5274,8 +5303,9 @@ void Spell::EffectWeaponDmg(SpellEffectIndex eff_idx)
             if(m_spellInfo->SpellFamilyFlags & UI64LIT(0x00020000000000))
             {
                 float ap = m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
-                int32 holy = m_caster->SpellBaseDamageBonusDone(GetSpellSchoolMask(m_spellInfo)) +
-                             unitTarget->SpellBaseDamageBonusTaken(GetSpellSchoolMask(m_spellInfo));
+                int32 holy = m_caster->SpellBaseDamageBonusDone(GetSpellSchoolMask(m_spellInfo));
+                if (holy < 0)
+                    holy = 0;
                 spell_bonus += int32(ap * 0.08f) + int32(holy * 13 / 100);
             }
             break;
