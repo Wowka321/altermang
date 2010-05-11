@@ -153,7 +153,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectKillCreditPersonal,                       // 90 SPELL_EFFECT_KILL_CREDIT              Kill credit but only for single person
     &Spell::EffectUnused,                                   // 91 SPELL_EFFECT_THREAT_ALL               one spell: zzOLDBrainwash
     &Spell::EffectEnchantHeldItem,                          // 92 SPELL_EFFECT_ENCHANT_HELD_ITEM
-    &Spell::EffectUnused,                                   // 93 SPELL_EFFECT_93 (old SPELL_EFFECT_SUMMON_PHANTASM)
+    &Spell::EffectBreakPlayerTargeting,                     // 93 SPELL_EFFECT_BREAK_PLAYER_TARGETING
     &Spell::EffectSelfResurrect,                            // 94 SPELL_EFFECT_SELF_RESURRECT
     &Spell::EffectSkinning,                                 // 95 SPELL_EFFECT_SKINNING
     &Spell::EffectCharge,                                   // 96 SPELL_EFFECT_CHARGE
@@ -1612,6 +1612,17 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     }
 
                     ((Creature*)unitTarget)->ForcedDespawn();
+                    return;
+                }
+                case 51964:                                 // Tormentor's Incense
+                {
+                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
+                        return;
+
+                    // This might not be the best way, and effect may need some adjustment. Removal of any aura from surrounding dummy creatures?
+                    if (((Creature*)unitTarget)->AI())
+                        ((Creature*)unitTarget)->AI()->AttackStart(m_caster);
+
                     return;
                 }
                 case 52308:                                 // Take Sputum Sample
@@ -3335,14 +3346,16 @@ void Spell::EffectHeal(SpellEffectIndex /*eff_idx*/)
         // Chain Healing
         if (m_spellInfo->SpellFamilyName == SPELLFAMILY_SHAMAN && m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000000000000100))
         {
-            // check for Riptide
-            if (unitTarget != m_targets.getUnitTarget())
-                return;
-            Aura* riptide = unitTarget->GetAura(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_SHAMAN, 0, 0x00000010, caster->GetGUID());
-            if (!riptide)
-                return;
-            addhealth += addhealth/4;
-            unitTarget->RemoveAura(riptide);
+            if (unitTarget == m_targets.getUnitTarget())
+            {
+                // check for Riptide
+                Aura* riptide = unitTarget->GetAura(SPELL_AURA_PERIODIC_HEAL, SPELLFAMILY_SHAMAN, 0, 0x00000010, caster->GetGUID());
+                if (riptide)
+                {
+                    addhealth += addhealth/4;
+                    unitTarget->RemoveAura(riptide);
+                }
+            }
         }
 
         addhealth = caster->SpellHealingBonusDone(unitTarget, m_spellInfo, addhealth, HEAL);
@@ -5197,6 +5210,27 @@ void Spell::EffectWeaponDmg(SpellEffectIndex eff_idx)
     int32 spell_bonus = 0;                                  // bonus specific for spell
     switch(m_spellInfo->SpellFamilyName)
     {
+        case SPELLFAMILY_GENERIC:
+        {
+            switch(m_spellInfo->Id)
+            {
+                // for spells with divided damage to targets
+                case 66765: case 66809: case 67331:         // Meteor Fists
+                case 67333:                                 // Meteor Fists
+                case 69055:                                 // Bone Slice
+                case 71021:                                 // Saber Lash
+                {
+                    uint32 count = 0;
+                    for(std::list<TargetInfo>::iterator ihit = m_UniqueTargetInfo.begin(); ihit != m_UniqueTargetInfo.end(); ++ihit) 
+                        if(ihit->effectMask & (1<<eff_idx))
+                            ++count;
+
+                    totalDamagePercentMod /= float(count);  // divide to all targets
+                    break;
+                }
+            }
+            break;
+        }
         case SPELLFAMILY_DRUID:
         {
             // Rend and Tear ( on Maul / Shred )
@@ -5215,7 +5249,6 @@ void Spell::EffectWeaponDmg(SpellEffectIndex eff_idx)
                     }
                 }
             }
-
             break;
         }
         case SPELLFAMILY_WARRIOR:
@@ -6135,6 +6168,17 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         m_caster->CastSpell(m_caster, spellId, true);
 
                     break;
+                }
+                case 54182:                                 // An End to the Suffering: Quest Completion Script
+                {
+                    if (!unitTarget)
+                        return;
+
+                    // Remove aura given at quest accept / gossip
+                    if (unitTarget->HasAura(51967))
+                        unitTarget->RemoveAurasDueToSpell(51967);
+
+                    return;
                 }
                 case 54729:                                 // Winged Steed of the Ebon Blade
                 {
@@ -7891,6 +7935,16 @@ void Spell::EffectDestroyAllTotems(SpellEffectIndex /*eff_idx*/)
 
     if (mana)
         m_caster->CastCustomSpell(m_caster, 39104, &mana, NULL, NULL, true);
+}
+
+void Spell::EffectBreakPlayerTargeting (SpellEffectIndex /* eff_idx */)
+{
+    if (!unitTarget)
+        return;
+
+    WorldPacket data(SMSG_CLEAR_TARGET, 8);
+    data << unitTarget->GetObjectGuid();
+    unitTarget->SendMessageToSet(&data, false);
 }
 
 void Spell::EffectDurabilityDamage(SpellEffectIndex eff_idx)
