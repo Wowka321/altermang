@@ -2966,6 +2966,13 @@ void Spell::cast(bool skipCheck)
                 AddTriggeredSpell(64380);                     // Shattering Throw
             break;
         }
+        case SPELLFAMILY_DEATHKNIGHT:
+        {
+            // Frost Fever at Chains of Ice
+            if (m_spellInfo->Id == 45524)
+                AddTriggeredSpell(55095);
+            break;
+        }
         default:
             break;
     }
