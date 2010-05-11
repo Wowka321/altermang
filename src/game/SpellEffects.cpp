@@ -2611,6 +2611,12 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 m_caster->CastCustomSpell(m_caster, 45470, &bp, NULL, NULL, true);
                 return;
             }
+            // Frost Fever at Chains of Ice
+            else if (m_spellInfo->Id == 45524)
+            {
+                m_caster->CastSpell(unitTarget, 55095, true);
+                return;
+            }
             // Death Grip
             else if(m_spellInfo->Id == 49576)
             {
