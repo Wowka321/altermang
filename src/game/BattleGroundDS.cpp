@@ -55,9 +55,9 @@ void BattleGroundDS::Update(uint32 diff)
             for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
             {
                 Player * plr = sObjectMgr.GetPlayer(itr->first);
-                if (plr->GetDistance2d(1214, 765) <= 50 && plr->GetPositionZ() > 10)
+                if (plr && plr->GetDistance2d(1214, 765) <= 50 && plr->GetPositionZ() > 10)
                     plr->KnockBackPlayerWithAngle(6.40f, 55, 7);
-                if (plr->GetDistance2d(1369, 817) <= 50 && plr->GetPositionZ() > 10)
+                if (plr && plr->GetDistance2d(1369, 817) <= 50 && plr->GetPositionZ() > 10)
                     plr->KnockBackPlayerWithAngle(3.03f, 55, 7);
             }
             KnockbackCheck = false;
@@ -71,9 +71,9 @@ void BattleGroundDS::Update(uint32 diff)
             for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
             {
                 Player * plr = sObjectMgr.GetPlayer(itr->first);
-                if (plr->GetDistance2d(1214, 765) <= 50 && plr->GetPositionZ() > 10)
+                if (plr && plr->GetDistance2d(1214, 765) <= 50 && plr->GetPositionZ() > 10)
                     plr->TeleportTo(617, 1257+urand(0,2), 761+urand(0,2), 3.2f, 0.5f);
-                if (plr->GetDistance2d(1369, 817) <= 50 && plr->GetPositionZ() > 10)
+                if (plr && plr->GetDistance2d(1369, 817) <= 50 && plr->GetPositionZ() > 10)
                     plr->TeleportTo(617, 1328+urand(0,2), 815+urand(0,2), 3.2f, 3.5f);
             }
             TeleportCheck = false;
@@ -86,7 +86,7 @@ void BattleGroundDS::Update(uint32 diff)
 			for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
 			{
 				Player * plr = sObjectMgr.GetPlayer(itr->first);
-				if (plr->GetPositionZ() < 0.5)
+				if (plr && plr->GetPositionZ() < 0.5)
 					plr->TeleportTo(617, plr->GetPositionX(), plr->GetPositionY(), plr->GetPositionZ() + 8, plr->GetOrientation());
 			}
 		}else m_uiFall -= diff;
