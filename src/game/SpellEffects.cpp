@@ -6095,45 +6095,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, damage, false);
                     break;
                 }
-                case 48025:                                 // Headless Horseman Mount
-                {
-                    if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    // Prevent stacking of mounts
-                    unitTarget->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
-
-                    // Triggered spell id dependent of riding skill
-                    uint16 skillval = ((Player*)unitTarget)->GetSkillValue(SKILL_RIDING);
-                    uint32 zone, area;
-                    unitTarget->GetZoneAndAreaId(zone, area);
-                    switch (skillval)
-                    {
-                        case 75:
-                            unitTarget->CastSpell(unitTarget, 51621, true);
-                            return;
-                        case 150:
-                            unitTarget->CastSpell(unitTarget, 48024, true);
-                            return;
-                        case 225:
-                            if ((((Player*)unitTarget)->IsKnowHowFlyIn(((Player*)unitTarget)->GetMapId(), zone) && area != 4395 && 
-                               ((Player*)unitTarget)->GetMapId() == 571) || ((Player*)unitTarget)->GetMapId() == 530)
-                                unitTarget->CastSpell(unitTarget, 51617, true);
-                            else
-                                unitTarget->CastSpell(unitTarget, 48024, true);
-                            return;
-                        case 300:
-                            if ((((Player*)unitTarget)->IsKnowHowFlyIn(((Player*)unitTarget)->GetMapId(), zone) && area != 4395 &&
-                               ((Player*)unitTarget)->GetMapId() == 571) || ((Player*)unitTarget)->GetMapId() == 530)
-                                unitTarget->CastSpell(unitTarget, 48023, true);
-                            else
-                                unitTarget->CastSpell(unitTarget, 48024, true);
-                            return;
-                        default:
-                            break;
-                    }
-                    return;
-                }
                 //Big Blizzard Bear
                 case 58983:
                 {
@@ -6415,70 +6376,6 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         return;
 
                     m_caster->CastSpell(unitTarget, 72588, true);
-                    return;
-                }
-                case 72286:                                 // Invincible
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    // Prevent stacking of mounts
-                    unitTarget->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
-                    uint16 skillval = ((Player*)unitTarget)->GetSkillValue(SKILL_RIDING);
-                    if (!skillval)
-                        return;
-
-                    if (skillval >= 225)
-                    {
-                        uint32 spellid = skillval >= 300 ? 72284 : 72283;
-                        SpellEntry const *pSpell = sSpellStore.LookupEntry(spellid);
-                        // zone check
-                        uint32 zone, area;
-                        unitTarget->GetZoneAndAreaId(zone, area);
-
-                        SpellCastResult locRes= sSpellMgr.GetSpellAllowedInLocationError(pSpell, unitTarget->GetMapId(), zone, area, unitTarget->GetCharmerOrOwnerPlayerOrPlayerItself());
-                        if (locRes != SPELL_CAST_OK || !((Player*)unitTarget)->IsKnowHowFlyIn(unitTarget->GetMapId(),zone))
-                            unitTarget->CastSpell(unitTarget, 72282, true);
-                        else
-                            unitTarget->CastSpell(unitTarget, pSpell, true);
-                    }
-                    else if (skillval >= 150)
-                        unitTarget->CastSpell(unitTarget, 72282, true);
-                    else
-                        unitTarget->CastSpell(unitTarget, 72281, true);
-
-                    return;
-                }
-                case 75614:                                 // Celestial Steed
-                {
-                    if (!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    // Prevent stacking of mounts
-                    unitTarget->RemoveSpellsCausingAura(SPELL_AURA_MOUNTED);
-                    uint16 skillval = ((Player*)unitTarget)->GetSkillValue(SKILL_RIDING);
-                    if (!skillval)
-                        return;
-
-                    if (skillval >= 225)
-                    {
-                        uint32 spellid = skillval >= 300 ? 76153 : 75617;
-                        SpellEntry const *pSpell = sSpellStore.LookupEntry(spellid);
-                        // zone check
-                        uint32 zone, area;
-                        unitTarget->GetZoneAndAreaId(zone, area);
-
-                        SpellCastResult locRes= sSpellMgr.GetSpellAllowedInLocationError(pSpell, unitTarget->GetMapId(), zone, area, unitTarget->GetCharmerOrOwnerPlayerOrPlayerItself());
-                        if (locRes != SPELL_CAST_OK || !((Player*)unitTarget)->IsKnowHowFlyIn(unitTarget->GetMapId(),zone))
-                            unitTarget->CastSpell(unitTarget, 75620, true);
-                        else
-                            unitTarget->CastSpell(unitTarget, pSpell, true);
-                    }
-                    else if (skillval >= 150)
-                        unitTarget->CastSpell(unitTarget, 75620, true);
-                    else
-                        unitTarget->CastSpell(unitTarget, 75619, true);
-
                     return;
                 }
             }
