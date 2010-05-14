@@ -545,8 +545,6 @@ void BattleGroundEY::EventPlayerClickedOnFlag(Player *Source, GameObject* target
         PSendMessageToAll(LANG_BG_EY_HAS_TAKEN_FLAG, CHAT_MSG_BG_SYSTEM_ALLIANCE, NULL, Source->GetName());
     else
         PSendMessageToAll(LANG_BG_EY_HAS_TAKEN_FLAG, CHAT_MSG_BG_SYSTEM_HORDE, NULL, Source->GetName());
-
-    Source->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, 183);
 }
 
 void BattleGroundEY::EventTeamLostPoint(Player *Source, uint32 Point)

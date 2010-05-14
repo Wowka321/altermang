@@ -265,7 +265,7 @@ void BattleGroundAV::Update(uint32 diff)
             if (m_Nodes[i].Timer > diff)
                 m_Nodes[i].Timer -= diff;
             else
-                 EventPlayerDestroyedPoint(i);
+                EventPlayerDestroyedPoint(i);
         }
     }
 }
@@ -477,9 +477,9 @@ void BattleGroundAV::ChangeMineOwner(uint8 mine, uint32 team)
 bool BattleGroundAV::PlayerCanDoMineQuest(int32 GOId, uint32 team)
 {
     if (GOId == BG_AV_OBJECTID_MINE_N)
-         return (m_Mine_Owner[BG_AV_NORTH_MINE] == GetTeamIndexByTeamId(team));
+        return (m_Mine_Owner[BG_AV_NORTH_MINE] == GetTeamIndexByTeamId(team));
     if (GOId == BG_AV_OBJECTID_MINE_S)
-         return (m_Mine_Owner[BG_AV_SOUTH_MINE] == GetTeamIndexByTeamId(team));
+        return (m_Mine_Owner[BG_AV_SOUTH_MINE] == GetTeamIndexByTeamId(team));
     return true;                                            // cause it's no mine'object it is ok if this is true
 }
 
@@ -595,7 +595,6 @@ void BattleGroundAV::EventPlayerAssaultsPoint(Player* player, BG_AV_Nodes node)
             GetNodeName(node),
             ( team == BG_TEAM_ALLIANCE ) ? LANG_BG_ALLY:LANG_BG_HORDE);
         UpdatePlayerScore(player, SCORE_TOWERS_ASSAULTED, 1);
-        player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, 61);
     }
     else
     {
@@ -604,7 +603,6 @@ void BattleGroundAV::EventPlayerAssaultsPoint(Player* player, BG_AV_Nodes node)
             ( team == BG_TEAM_ALLIANCE ) ? LANG_BG_ALLY:LANG_BG_HORDE);
         // update the statistic for the assaulting player
         UpdatePlayerScore(player, SCORE_GRAVEYARDS_ASSAULTED, 1);
-        player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BG_OBJECTIVE_CAPTURE, 63);
     }
 
     PlaySoundToAll((team == BG_TEAM_ALLIANCE) ? BG_AV_SOUND_ALLIANCE_ASSAULTS : BG_AV_SOUND_HORDE_ASSAULTS);
