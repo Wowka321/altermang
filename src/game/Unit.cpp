@@ -9811,20 +9811,7 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
             coeff = bonus->direct_damage * LvlPenalty;
 
         if (bonus->ap_bonus)
-        {
-           float total_bonus = bonus->ap_bonus;
-           if (GetTypeId() == TYPEID_PLAYER && ((Player*)this)->getClass() == CLASS_DEATH_KNIGHT)
-           {
-               uint32 impurity_id[5] = {49220,49633,49635,49636,49638};
-               for (int i = 0; i < 5; ++i)
-                   if (((Player*)this)->HasSpell(impurity_id[i]))
-                   {
-                       total_bonus += bonus->ap_bonus * (sSpellStore.LookupEntry(impurity_id[i])->EffectBasePoints[EFFECT_INDEX_0] + 1) / 100.0f;
-                       break;
-                   }
-           }
-           DoneTotal += int32(total_bonus * GetTotalAttackPowerValue(BASE_ATTACK));
-        }
+            DoneTotal += int32(bonus->ap_bonus * GetTotalAttackPowerValue(BASE_ATTACK));
 
         DoneTotal  += int32(DoneAdvertisedBenefit * coeff * SpellModSpellDamage);
     }
@@ -10406,20 +10393,7 @@ uint32 Unit::SpellHealingBonusDone(Unit *pVictim, SpellEntry const *spellProto, 
             coeff = bonus->direct_damage * LvlPenalty;
 
         if (bonus->ap_bonus)
-        {
-           float total_bonus = bonus->ap_bonus;
-           if (GetTypeId() == TYPEID_PLAYER && ((Player*)this)->getClass() == CLASS_DEATH_KNIGHT)
-           {
-               uint32 impurity_id[5] = {49220,49633,49635,49636,49638};
-               for (int i = 0; i < 5; ++i)
-                   if (((Player*)this)->HasSpell(impurity_id[i]))
-                   {
-                       total_bonus += bonus->ap_bonus * (sSpellStore.LookupEntry(impurity_id[i])->EffectBasePoints[EFFECT_INDEX_0] + 1) / 100.0f;
-                       break;
-                   }
-           }
-           DoneTotal += int32(total_bonus * GetTotalAttackPowerValue(BASE_ATTACK));
-        }
+            DoneTotal += int32(bonus->ap_bonus * GetTotalAttackPowerValue(BASE_ATTACK));
 
         DoneTotal  += int32(DoneAdvertisedBenefit * coeff * SpellModSpellDamage);
     }
