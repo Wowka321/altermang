@@ -2638,6 +2638,16 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     caster->SetThreatRedirectionTarget(0, 0);
                 return;
             }
+            case 51870:                                     // Collect Hair Sample
+            {
+                if (Unit* pCaster = GetCaster())
+                {
+                    if (m_removeMode == AURA_REMOVE_BY_DEFAULT)
+                        pCaster->CastSpell(m_target, 51872, true, NULL, this);
+                }
+
+                return;
+            }
             case 58600:                                     // Restricted Flight Area
             {
                 // Remove Flight Auras
