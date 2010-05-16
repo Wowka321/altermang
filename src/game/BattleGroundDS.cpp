@@ -165,12 +165,13 @@ bool BattleGroundDS::HandlePlayerUnderMap(Player *player)
     return true;
 }
 
-void BattleGroundDS::FillInitialWorldStates(WorldPacket &data)
+void BattleGroundDS::FillInitialWorldStates(WorldPacket &data, uint32& count)
 {
-    data << uint32(0xe11) << uint32(GetAlivePlayersCountByTeam(ALLIANCE));           // 7
-    data << uint32(0xe10) << uint32(GetAlivePlayersCountByTeam(HORDE));           // 8
-    data << uint32(3610) << uint32(1);           // 9
+    FillInitialWorldState(data, count, 0xe11, GetAlivePlayersCountByTeam(ALLIANCE));
+    FillInitialWorldState(data, count, 0xe10, GetAlivePlayersCountByTeam(HORDE));
+    FillInitialWorldState(data, count, 0xe1a, 1);
 }
+
 void BattleGroundDS::Reset()
 {
     //call parent's class reset
