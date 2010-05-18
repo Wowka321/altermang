@@ -116,7 +116,7 @@ namespace MaNGOS
                 return 0;
 
             uint32 xp_gain= BaseGain(pl->getLevel(), u->getLevel(), GetContentLevelsForMapAndZone(pl->GetMapId(),pl->GetZoneId()));
-            if( (u->getLevel() -  pl->getLevel()) > 8)
+            if( (u->getLevel() >  pl->getLevel()) && (u->getLevel() -  pl->getLevel()) > 8)
                 xp_gain = 0;
 
             if( xp_gain == 0 )
