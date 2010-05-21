@@ -5761,6 +5761,7 @@ void Player::SetSkill(uint16 id, uint16 currVal, uint16 maxVal, uint16 step /*=0
     {
         if(currVal)
         {
+            _RemoveAllItemMods();                          // Maybe now we meet requirements, so reaplly mods
             if (step)                                      // need update step
                 SetUInt32Value(PLAYER_SKILL_INDEX(itr->second.pos), MAKE_PAIR32(id, step));
             // update value
@@ -5770,10 +5771,11 @@ void Player::SetSkill(uint16 id, uint16 currVal, uint16 maxVal, uint16 step /*=0
             learnSkillRewardedSpells(id, currVal);
             GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, id);
             GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL, id);
+           _ApplyAllItemMods();
         }
         else                                                //remove
         {
-            _RemoveAllItemMods();
+            _RemoveAllItemMods();                          // And now not we can !meet, so reaplly mods again
             // clear skill fields
             SetUInt32Value(PLAYER_SKILL_INDEX(itr->second.pos), 0);
             SetUInt32Value(PLAYER_SKILL_VALUE_INDEX(itr->second.pos), 0);
