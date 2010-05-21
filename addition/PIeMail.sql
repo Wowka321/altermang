@@ -1,1 +1,2 @@
 INSERT INTO `mangos_string` VALUES (11001, 'Player %s %s eMail: %s', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Игрок %s %s eMail: %s');
+INSERT INTO `command` VALUES ('piemail', '4', 'Output email adress for account that include player with $player_name.');
