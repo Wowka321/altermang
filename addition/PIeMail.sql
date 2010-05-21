@@ -1,0 +1,1 @@
+INSERT INTO `mangos_string` VALUES (11001, 'Player %s %s eMail: %s', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Игрок %s %s eMail: %s');
