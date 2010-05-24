@@ -765,6 +765,7 @@ ByteBuffer& operator<<(ByteBuffer& b, LootView const& lv)
                     LootItem &item = l.items[ci->index];
                     if (!ci->is_looted && !item.is_looted)
                     {
+                        uint8 slot_type = (lv.permission==MASTER_PERMISSION && !item.is_underthreshold) ? 2 : 0;
                         b << uint8(ci->index) << item;
                         b << uint8(slot_type);                     
                         ++itemsShown;
