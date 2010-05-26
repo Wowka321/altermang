@@ -523,7 +523,8 @@ void ThreatManager::processThreatEvent(ThreatRefStatusChangeEvent* threatRefStat
                     setCurrentVictim(NULL);
                     setDirty(true);
                 }
-                iOwner->SendThreatRemove(hostileReference);
+                if (iOwner && iOwner->IsInWorld())
+                    iOwner->SendThreatRemove(hostileReference);
                 iThreatContainer.remove(hostileReference);
                 iUpdateNeed = true;
                 iThreatOfflineContainer.addReference(hostileReference);
@@ -545,7 +546,8 @@ void ThreatManager::processThreatEvent(ThreatRefStatusChangeEvent* threatRefStat
             }
             if(hostileReference->isOnline())
             {
-                iOwner->SendThreatRemove(hostileReference);
+                if (iOwner && iOwner->IsInWorld())
+                    iOwner->SendThreatRemove(hostileReference);
                 iThreatContainer.remove(hostileReference);
                 iUpdateNeed = true;
             }
