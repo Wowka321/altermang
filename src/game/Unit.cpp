@@ -6029,13 +6029,6 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                 triggered_spell_id = 26654;
                 break;
             }
-            // Gag Order rank 1
-            // Gag Order rank 2
-            if (dummySpell->Id == 12311 || dummySpell->Id == 12958)
-            {
-                triggered_spell_id = 18498;
-                break;
-            }
             // Glyph of Blocking
             if (dummySpell->Id == 58375)
             {
