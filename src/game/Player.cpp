@@ -3845,6 +3845,8 @@ bool Player::resetTalents(bool no_cost, bool all_specs)
         }
     }
 
+    RemoveAllEnchantments(TEMP_ENCHANTMENT_SLOT);
+
     for (PlayerTalentMap::iterator iter = m_talents[m_activeSpec].begin(); iter != m_talents[m_activeSpec].end();)
     {
         if (iter->second.state == PLAYERSPELL_REMOVED)
