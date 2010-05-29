@@ -3227,7 +3227,7 @@ void Spell::SendSpellCooldown()
     }
 
     // (1) have infinity cooldown but set at aura apply, (2) passive cooldown at triggering
-    if(m_spellInfo->Attributes & (SPELL_ATTR_DISABLED_WHILE_ACTIVE | SPELL_ATTR_PASSIVE))
+    if(m_spellInfo->Attributes & (SPELL_ATTR_DISABLED_WHILE_ACTIVE | SPELL_ATTR_PASSIVE) && m_spellInfo->Id != 5019)
         return;
 
     _player->AddSpellAndCategoryCooldowns(m_spellInfo, m_CastItem ? m_CastItem->GetEntry() : 0, this);

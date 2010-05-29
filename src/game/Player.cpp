@@ -19260,7 +19260,11 @@ void Player::AddSpellAndCategoryCooldowns(SpellEntry const* spellInfo, uint32 it
         // shoot spells used equipped item cooldown values already assigned in GetAttackTime(RANGED_ATTACK)
         // prevent 0 cooldowns set by another way
         if (rec <= 0 && catrec <= 0 && (cat == 76 || IsAutoRepeatRangedSpell(spellInfo) && spellInfo->Id != SPELL_ID_AUTOSHOT))
+        {
             rec = GetAttackTime(RANGED_ATTACK);
+            if(spellInfo->Id == 5019)
+                ProhibitSpellSchool(SPELL_SCHOOL_MASK_MAGIC, rec);//gkd
+        }
 
         // Now we have cooldown data (if found any), time to apply mods
         if(rec > 0)
