@@ -353,6 +353,9 @@ void Creature::Update(uint32 diff)
             return;
     }
 
+    if (!IsInWorld())
+        return;
+
     switch( m_deathState )
     {
         case JUST_ALIVED:
