@@ -892,7 +892,6 @@ enum MangosStrings
 
     // Use for not-in-offcial-sources patches
     //                                    10000-10999
-    LANG_ANNOUNCE_CHEAT                 = 11000,
     LANG_PINFO_EMAIL                    = 11001,
 
     // Use for custom patches             11000-11999
