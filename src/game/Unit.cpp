@@ -7000,6 +7000,15 @@ bool Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura* triggeredByAu
                     target = this;
                     break;
                 }
+                // Item - Paladin T10 Retribution 2P Bonus
+                case 70765:
+                {
+                    if (GetTypeId() != TYPEID_PLAYER)
+                        return false;
+
+                    ((Player*)this)->RemoveSpellCooldown(53385, true);
+                    return true;
+                }
             }
             break;
         }
