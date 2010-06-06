@@ -2249,7 +2249,7 @@ void Aura::TriggerSpell()
                 return;
             // Intense Cold
             case 48094:
-                target->CastSpell(target, trigger_spell_id, true, NULL, this);
+                triggerTarget->CastSpell(triggerTarget, trigger_spell_id, true, NULL, this);
                 return;
             // Rod of Purification - for quest 10839 (Veil Skith: Darkstone of Terokk)
             case 38736:
@@ -2369,37 +2369,37 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                             ((Player*)target)->RemoveAmmo();
                         return;
                     case 55328:                                 // Stoneclaw Totem I
-                        m_target->CastSpell(m_target, 5728, true);
+                        target->CastSpell(target, 5728, true);
                         return;
                     case 55329:                                 // Stoneclaw Totem II
-                        m_target->CastSpell(m_target, 6397, true);
+                        target->CastSpell(target, 6397, true);
                         return;
                     case 55330:                                 // Stoneclaw Totem III
-                        m_target->CastSpell(m_target, 6398, true);
+                        target->CastSpell(target, 6398, true);
                         return;
                     case 55332:                                 // Stoneclaw Totem IV
-                        m_target->CastSpell(m_target, 6399, true);
+                        target->CastSpell(target, 6399, true);
                         return;
                     case 55333:                                 // Stoneclaw Totem V
-                        m_target->CastSpell(m_target, 10425, true);
+                        target->CastSpell(target, 10425, true);
                         return;
                     case 55335:                                 // Stoneclaw Totem VI
-                        m_target->CastSpell(m_target, 10426, true);
+                        target->CastSpell(target, 10426, true);
                         return;
                     case 55278:                                 // Stoneclaw Totem VII
-                        m_target->CastSpell(m_target, 25513, true);
+                        target->CastSpell(target, 25513, true);
                         return;
                     case 58589:                                 // Stoneclaw Totem VIII
-                        m_target->CastSpell(m_target, 58583, true);
+                        target->CastSpell(target, 58583, true);
                         return;
                     case 58590:                                 // Stoneclaw Totem IX
-                        m_target->CastSpell(m_target, 58584, true);
+                        target->CastSpell(target, 58584, true);
                         return;
                     case 58591:                                 // Stoneclaw Totem X
-                        m_target->CastSpell(m_target, 58585, true);
+                        target->CastSpell(target, 58585, true);
                         return;
                     case 47977:                             // Magic Broom
-                        Spell::SelectMountByAreaAndSkill(m_target, 42680, 42683, 42667, 42668, 0);
+                        Spell::SelectMountByAreaAndSkill(target, 42680, 42683, 42667, 42668, 0);
                         return;
                     case 48025:                             // Headless Horseman's Mount
                         Spell::SelectMountByAreaAndSkill(target, 51621, 48024, 51617, 48023, 0);
@@ -2522,7 +2522,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     if(!caster)
                         return;
 
-                    caster->CastSpell(m_target, 55095, true);
+                    caster->CastSpell(target, 55095, true);
                 }
                 break;
             }
@@ -4757,13 +4757,13 @@ void Aura::HandleModMechanicImmunity(bool apply, bool /*Real*/)
     // Demonic Circle
     if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_WARLOCK && GetSpellProto()->SpellIconID == 3221)
     {
-        if (m_target->GetTypeId() != TYPEID_PLAYER)
+        if (target->GetTypeId() != TYPEID_PLAYER)
             return;
         if (apply)
         {
-            GameObject* obj = m_target->GetGameObject(48018);
+            GameObject* obj = target->GetGameObject(48018);
             if (obj)
-                ((Player*)m_target)->TeleportTo(obj->GetMapId(),obj->GetPositionX(),obj->GetPositionY(),obj->GetPositionZ(),obj->GetOrientation());
+                ((Player*)target)->TeleportTo(obj->GetMapId(),obj->GetPositionX(),obj->GetPositionY(),obj->GetPositionZ(),obj->GetOrientation());
         }
     }
     // Bestial Wrath
@@ -5067,11 +5067,11 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
             {
                 case 48018:
                        if (apply)
-                          m_target->CastSpell(m_target, 62388, true);                
+                          target->CastSpell(target, 62388, true);                
                         else
                         {
-                          m_target->RemoveGameObject(spell->Id,true);
-                          m_target->RemoveAurasDueToSpell(62388);
+                          target->RemoveGameObject(spell->Id,true);
+                          target->RemoveAurasDueToSpell(62388);
                         }
                 break;
             }
@@ -8387,19 +8387,19 @@ void Aura::PeriodicDummyTick()
             switch (spell->Id)
             {
                 case 48018:
-                    GameObject* obj = m_target->GetGameObject(spell->Id);
+                    GameObject* obj = target->GetGameObject(spell->Id);
                     if (!obj)
                         {
-                         m_target->RemoveAurasDueToSpell(spell->Id);
-                         m_target->RemoveAurasDueToSpell(62388); 
+                         target->RemoveAurasDueToSpell(spell->Id);
+                         target->RemoveAurasDueToSpell(62388); 
                          return;
                         }
                     // We must take a range of teleport spell, not summon.
                     const SpellEntry* goToCircleSpell = sSpellStore.LookupEntry(48020);
-                    if (m_target->IsWithinDist(obj,GetSpellMaxRange(sSpellRangeStore.LookupEntry(goToCircleSpell->rangeIndex))))
-                        m_target->CastSpell(m_target, 62388, true);
+                    if (target->IsWithinDist(obj,GetSpellMaxRange(sSpellRangeStore.LookupEntry(goToCircleSpell->rangeIndex))))
+                        target->CastSpell(target, 62388, true);
                     else
-                        m_target->RemoveAurasDueToSpell(62388);
+                        target->RemoveAurasDueToSpell(62388);
             }
             break;
         case SPELLFAMILY_ROGUE:
@@ -8519,9 +8519,9 @@ void Aura::PeriodicDummyTick()
             // Hysteria Health Decreasing
             if (spell->Id == 49016 )
             {
-                uint32 dam = m_target->GetMaxHealth()*0.01;
-                m_target->DealDamage(m_target, dam, NULL, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, spell, false);
-                m_target->SendSpellNonMeleeDamageLog(m_target, spell->Id, dam, SPELL_SCHOOL_MASK_NORMAL, 0, 0, false, 0, false);
+                uint32 dam = target->GetMaxHealth()*0.01;
+                target->DealDamage(target, dam, NULL, NODAMAGE, SPELL_SCHOOL_MASK_NORMAL, spell, false);
+                target->SendSpellNonMeleeDamageLog(target, spell->Id, dam, SPELL_SCHOOL_MASK_NORMAL, 0, 0, false, 0, false);
                 return;
             }
             // Death Rune Mastery
