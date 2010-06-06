@@ -4194,7 +4194,10 @@ SpellCastResult Spell::CheckOrTakeRunePower(bool take)
                 --runeCost[rune];
 
                 if (take)
+                {
                     plr->ConvertRune(i, plr->GetBaseRune(i));
+                    plr->ClearConvertedBy(i);
+                }
             }
         }
 
