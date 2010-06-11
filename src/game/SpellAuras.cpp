@@ -227,7 +227,7 @@ pAuraHandler AuraHandler[TOTAL_AURAS]=
     &Aura::HandleModSpellDamagePercentFromStat,             //174 SPELL_AURA_MOD_SPELL_DAMAGE_OF_STAT_PERCENT  implemented in Unit::SpellBaseDamageBonusDone
     &Aura::HandleModSpellHealingPercentFromStat,            //175 SPELL_AURA_MOD_SPELL_HEALING_OF_STAT_PERCENT implemented in Unit::SpellBaseHealingBonusDone
     &Aura::HandleSpiritOfRedemption,                        //176 SPELL_AURA_SPIRIT_OF_REDEMPTION   only for Spirit of Redemption spell, die at aura end
-    &Aura::HandleNULL,                                      //177 SPELL_AURA_AOE_CHARM (22 spells)
+    &Aura::HandleCharmConvert,                              //177 SPELL_AURA_AOE_CHARM (22 spells)
     &Aura::HandleNoImmediateEffect,                         //178 SPELL_AURA_MOD_DEBUFF_RESISTANCE          implemented in Unit::MagicSpellHitResult
     &Aura::HandleNoImmediateEffect,                         //179 SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE implemented in Unit::SpellCriticalBonus
     &Aura::HandleNoImmediateEffect,                         //180 SPELL_AURA_MOD_FLAT_SPELL_DAMAGE_VERSUS   implemented in Unit::SpellDamageBonusDone
@@ -8935,4 +8935,71 @@ void Aura::HandleAuraOpenStable(bool apply, bool Real)
     WorldPacket data;
     data << uint64(caster->GetGUID());
     ((Player*)caster)->GetSession()->HandleListStabledPetsOpcode(data);
+}
+
+void Aura::HandleCharmConvert(bool apply, bool Real)
+{
+    if(!Real)
+        return;
+
+    Unit *target = GetTarget();
+    if(!target)
+        return;
+
+    Unit *caster = GetCaster();
+    if(!caster)
+        return;
+
+    // not charm yourself
+    if(GetCasterGUID() == target->GetGUID())
+        return;
+
+    if( apply )
+    {
+        target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
+        target->SetCharmerGUID(GetCasterGUID());
+        target->setFaction(caster->getFaction());
+        target->CastStop();
+        caster->SetCharm(target);
+        target->CombatStop();
+        target->DeleteThreatList();
+
+        if(target->GetTypeId() == TYPEID_UNIT)
+        {
+            target->StopMoving();
+            target->GetMotionMaster()->Clear();
+            target->GetMotionMaster()->MoveIdle();
+        }
+        else if(target->GetTypeId() == TYPEID_PLAYER)
+        {
+            ((Player*)target)->SetClientControl(target, 0);
+        }
+
+        if (Unit *selectedTarget = target->SelectRandomUnfriendlyTarget(caster, 45))
+        {
+            target->SetInCombatWith(selectedTarget);
+            target->Attack(selectedTarget, true);
+            target->GetMotionMaster()->MoveChase(selectedTarget);
+        }
+
+    }
+    else
+    {
+        target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
+        target->SetCharmerGUID(0);
+        target->CombatStop();
+        caster->SetCharm(NULL);
+
+        if(target->GetTypeId() == TYPEID_PLAYER)
+        {
+            ((Player*)target)->setFactionForRace(target->getRace());
+            ((Player*)target)->SetClientControl(target, 1);
+        }
+        else if(target->GetTypeId() == TYPEID_UNIT)
+        {
+            CreatureInfo const *cinfo = ((Creature*)target)->GetCreatureInfo();
+            target->setFaction(cinfo->faction_A);
+        }
+
+    }
 }
