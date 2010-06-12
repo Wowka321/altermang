@@ -5920,8 +5920,6 @@ void Player::SetSkill(uint16 id, uint16 currVal, uint16 maxVal, uint16 step /*=0
             GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, id);
             GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LEARN_SKILL_LEVEL, id);
 
-             uint32 new_value = currVal+step;
-
              for (int i = EQUIPMENT_SLOT_START; i < EQUIPMENT_SLOT_END; ++i)
              {
                 if(Item *pItem = GetItemByPos( INVENTORY_SLOT_BAG_0, i ))
