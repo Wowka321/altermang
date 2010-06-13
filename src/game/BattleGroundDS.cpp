@@ -79,6 +79,7 @@ void BattleGroundDS::Update(uint32 diff)
             TeleportCheck = false;
             // close the gate
             OpenDoorEvent(BG_EVENT_DOOR);
+            m_uiFall = 3000;
         }else m_uiTeleport -= diff;
 
 		if (m_uiFall < diff)
@@ -88,6 +89,21 @@ void BattleGroundDS::Update(uint32 diff)
 				Player * plr = sObjectMgr.GetPlayer(itr->first);
 				if (plr && plr->GetPositionZ() < 0.5)
 					plr->TeleportTo(617, plr->GetPositionX(), plr->GetPositionY(), plr->GetPositionZ() + 8, plr->GetOrientation());
+
+                                // check for exploits
+                                if (plr && plr->GetDistance2d(1214, 765) <= 50 && plr->GetPositionZ() > 10)
+                                {
+                                    plr->TeleportTo(617, 1257+urand(0,2), 761+urand(0,2), 3.2f, 0.5f);
+                                    if (plr->HasAura(48018))
+                                        plr->RemoveAurasDueToSpell(48018);
+                                }
+                                if (plr && plr->GetDistance2d(1369, 817) <= 50 && plr->GetPositionZ() > 10)
+                                {
+                                    plr->TeleportTo(617, 1328+urand(0,2), 815+urand(0,2), 3.2f, 3.5f);
+                                    if (plr->HasAura(48018))
+                                        plr->RemoveAurasDueToSpell(48018);
+                                }
+
 			}
 		}else m_uiFall -= diff;
     }
@@ -178,9 +194,9 @@ void BattleGroundDS::Reset()
     BattleGround::Reset();
     m_uiTeleport = 5000;
     TeleportCheck = true;
-    m_uiKnockback = 3000;
+    m_uiKnockback = 2000;
     KnockbackCheck = true;
-    m_uiFall = 3000;
+    m_uiFall = 8000;
 }
 
 bool BattleGroundDS::SetupBattleGround()
