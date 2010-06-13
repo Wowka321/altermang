@@ -389,6 +389,9 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                         break;
                     // Defile damage depending from scale.
                     case 72754:
+                    case 73708:
+                    case 73709:
+                    case 73710:
                         damage = damage * m_caster->GetFloatValue(OBJECT_FIELD_SCALE_X);
                         break;
                 }

@@ -1564,7 +1564,10 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 72351:                                 // Fury of Frostmourne 
                     radius = 300;
                     break;
-                case 72754:                                 // Defile. Radius depended from scale.
+                case 72754:                                 // Defile 10 Radius depended from scale.
+                case 73708:                                 // Defile 25
+                case 73709:                                 // Defile 10H
+                case 73710:                                 // Defile 25H
                     if (Unit* realCaster = GetAffectiveCaster())
                         radius = realCaster->GetFloatValue(OBJECT_FIELD_SCALE_X) * 10;
                     break;
