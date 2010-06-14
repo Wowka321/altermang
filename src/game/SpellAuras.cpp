@@ -9017,8 +9017,9 @@ void Aura::HandleCharmConvert(bool apply, bool Real)
         target->setFaction(caster->getFaction());
         target->CastStop();
         caster->SetCharm(target);
-        target->CombatStop();
+        target->CombatStop(true);
         target->DeleteThreatList();
+        target->getHostileRefManager().deleteReferences();
 
         if(target->GetTypeId() == TYPEID_UNIT)
         {
@@ -9043,8 +9044,10 @@ void Aura::HandleCharmConvert(bool apply, bool Real)
     {
         target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
         target->SetCharmerGUID(0);
-        target->CombatStop();
+        target->CombatStop(true);
         caster->SetCharm(NULL);
+        target->DeleteThreatList();
+        target->getHostileRefManager().deleteReferences();
 
         if(target->GetTypeId() == TYPEID_PLAYER)
         {
