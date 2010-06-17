@@ -1438,6 +1438,14 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget,46798,true,m_CastItem,NULL,m_originalCasterGUID);
                     break;
                 }
+                case 48679:                                 // Banshee's Magic Mirror
+                {
+                    if (!unitTarget || m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    unitTarget->CastSpell(m_caster, 48648, true);
+                    return;
+                }
                 case 49357:                                 // Brewfest Mount Transformation
                 {
                     if (m_caster->GetTypeId() != TYPEID_PLAYER)
