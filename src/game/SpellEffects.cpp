@@ -4052,6 +4052,8 @@ void Spell::EffectSummonType(SpellEffectIndex eff_idx)
                     // Snake trap exception
                     else if (m_spellInfo->EffectMiscValueB[eff_idx] == 2301)
                         DoSummonSnakes(eff_idx);
+                    else if (prop_id == 1021)
+                        DoSummonGuardian(eff_idx, summon_prop->FactionId);
                     else
                         DoSummonWild(eff_idx, summon_prop->FactionId);
                     break;
