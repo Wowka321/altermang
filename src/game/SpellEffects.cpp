@@ -4651,6 +4651,41 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
         m_caster->AddGuardian(spawnCreature);
 
         map->Add((Creature*)spawnCreature);
+
+        switch(pet_entry)
+        {
+            case 31216:
+            {
+                // set bounding and combat radiuses to player defaults values
+                spawnCreature->SetFloatValue(UNIT_FIELD_BOUNDINGRADIUS, DEFAULT_WORLD_OBJECT_SIZE);
+                spawnCreature->SetFloatValue(UNIT_FIELD_COMBATREACH, 1.5f);
+                // copy onwer's SheathState and UnitBytes2_Flags
+                spawnCreature->SetUInt32Value(UNIT_FIELD_BYTES_2,m_caster->GetUInt32Value(UNIT_FIELD_BYTES_2));
+                //Set Health and Manna
+                spawnCreature->SetMaxHealth(m_caster->GetMaxHealth());
+                spawnCreature->SetHealth(m_caster->GetHealth());
+                spawnCreature->SetMaxPower(POWER_MANA, m_caster->GetMaxPower(POWER_MANA));
+                spawnCreature->SetPower(POWER_MANA, m_caster->GetPower(POWER_MANA));
+                // copy owner auras
+                Unit::AuraMap const& auras = m_caster->GetAuras();
+                for(Unit::AuraMap::const_iterator itr = auras.begin(); itr != auras.end(); ++itr)
+                {
+                    Aura *aur = (*itr).second;
+                    if (aur && aur->IsPositive() && !aur->IsPassive())
+                    {
+                        int32 bp = aur->GetBasePoints();
+                        Aura * newAur = CreateAura(aur->GetSpellProto(), aur->GetEffIndex(), &bp, (Unit*)spawnCreature, (Unit*)spawnCreature);
+                        newAur->SetAuraMaxDuration( aur->GetAuraMaxDuration() );
+                        newAur->SetAuraDuration( aur->GetAuraDuration() );
+                        newAur->SetIsSingleTarget(false);
+                        spawnCreature->AddAura(newAur);
+                    }
+                }
+                break;
+            }
+            default:
+                break;
+         }
     }
 }
 
