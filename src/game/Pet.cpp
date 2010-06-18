@@ -1951,13 +1951,9 @@ struct DoPetLearnSpell
 
 void Pet::SelectFollowAngle()
 {
-    Unit* owner = GetOwner();
-    if (owner)
-    {
-        float x, y, z;
-        owner->GetClosePoint(x, y, z,GetObjectSize()+PET_FOLLOW_DIST);
-        m_followAngle = owner->GetAngle(x, y);
-    }
+    if (Unit* owner = GetOwner())
+        m_followAngle = owner->GetAngle(this);
+    else m_followAngle = PET_FOLLOW_ANGLE;
 }
 
 void Pet::learnSpellHighRank(uint32 spellid)
