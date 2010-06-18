@@ -1,0 +1,2 @@
+UPDATE `locales_quest` SET `Title_loc8` = 'Очищение Кель\'Делара (дробящее)' WHERE `entry` IN (24595, 24596, 24598);
+UPDATE `locales_quest` SET `Title_loc8` = 'Очищение Кель\'Делара (мечи)' WHERE `entry` IN (24553, 24564, 24594);
