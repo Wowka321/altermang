@@ -1840,7 +1840,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     // Dragonmaw Illusion (multi-family check)
                     if (spellId_1 == 40216 && spellId_2 == 42016 )
                         return false;
-
+						
+                    // Innervate and Energized (multi-family check)
+                    if (spellId_1 == 67385 && spellId_2 == 29166 )
+                        return false;
+					
                     break;
                 }
                 case SPELLFAMILY_ROGUE:
@@ -2129,7 +2133,14 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             // Dragonmaw Illusion (multi-family check)
             if (spellId_1 == 42016 && spellId_2 == 40216 )
                 return false;
-
+				
+            if( spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC )
+            {
+                // Innervate and Energized (multi-family check)
+                if (spellId_1 == 29166 && spellId_2 == 67385 )
+                    return false;
+            }
+					
             break;
         case SPELLFAMILY_ROGUE:
             if( spellInfo_2->SpellFamilyName == SPELLFAMILY_ROGUE )
