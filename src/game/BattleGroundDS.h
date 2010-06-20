@@ -17,6 +17,7 @@
  */
 #ifndef __BATTLEGROUNDDS_H
 #define __BATTLEGROUNDDS_H
+#define WATERFALL_EVENT 250
 
 class BattleGround;
 
@@ -52,8 +53,10 @@ class BattleGroundDS : public BattleGround
         bool HandlePlayerUnderMap(Player * plr);
         bool TeleportCheck;
         bool KnockbackCheck;
+        bool WaterfallActivated;
         uint32 m_uiTeleport;
         uint32 m_uiKnockback;
         uint32 m_uiFall;
+        uint32 m_uiWaterfall;
 };
 #endif

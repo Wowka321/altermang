@@ -106,6 +106,31 @@ void BattleGroundDS::Update(uint32 diff)
 
 			}
 		}else m_uiFall -= diff;
+
+        // Waterfall
+        if(m_uiWaterfall < diff)
+        {
+            if(WaterfallActivated)
+            {
+                SpawnEvent(WATERFALL_EVENT, 0, false);
+                WaterfallActivated = false;
+            }
+            else
+            {
+                SpawnEvent(WATERFALL_EVENT, 0, true);
+                WaterfallActivated = true;
+
+		for(BattleGroundPlayerMap::const_iterator itr = GetPlayers().begin(); itr != GetPlayers().end(); ++itr)
+		{
+		    Player * plr = sObjectMgr.GetPlayer(itr->first);
+		    if (plr && plr->GetDistance2d(1291, 790) <= 6)
+                        plr->KnockBackFrom(plr, -20.0f, 9.0f);
+                }
+            }
+            m_uiWaterfall = urand(30,45)*IN_MILLISECONDS;
+
+        }else m_uiWaterfall -= diff;
+
     }
 }
 
@@ -197,6 +222,8 @@ void BattleGroundDS::Reset()
     m_uiKnockback = 2000;
     KnockbackCheck = true;
     m_uiFall = 8000;
+    WaterfallActivated = false;
+    m_uiWaterfall = 2000;
 }
 
 bool BattleGroundDS::SetupBattleGround()
