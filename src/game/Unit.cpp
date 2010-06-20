@@ -4103,7 +4103,7 @@ bool Unit::AddAura(Aura *Aur)
                     if (aur2->GetSpellProto()->AttributesEx4 & SPELL_ATTR_EX4_STACK_DOT_MODIFIER && aurName == SPELL_AURA_PERIODIC_DAMAGE && aur2->GetAuraDuration() > 0)
                     {
                         int32 remainingTicks = aur2->GetAuraMaxTicks() - aur2->GetAuraTicks();
-                        int32 remainingDamage = Aur->GetModifier()->m_amount * remainingTicks;
+                        int32 remainingDamage = aur2->GetModifier()->m_amount * remainingTicks;
 
                         Aur->GetModifier()->m_amount += int32(remainingDamage / Aur->GetAuraMaxTicks());
                     }
