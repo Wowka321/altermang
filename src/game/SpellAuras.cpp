@@ -2340,6 +2340,10 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                         if (Unit* caster = GetCaster())
                             caster->CastSpell(caster, 13138, true, NULL, this);
                         return;
+                    case 29710:                             // Dance at the ribbon pole
+                          target->HandleEmoteCommand(EMOTE_STATE_DANCE);
+                          target->CastSpell(target, 56327, true, NULL, this); //Just for visual, don't find better ((
+                        return;
                     case 39850:                             // Rocket Blast
                         if (roll_chance_i(20))              // backfire stun
                             target->CastSpell(target, 51581, true, NULL, this);
@@ -2593,6 +2597,13 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 target->CastSpell(target, 28206, true, NULL, this);
                 // Poison Cloud
                 target->CastSpell(target, 28240, true, NULL, this);
+                return;
+            }
+            case 29710:                                     // Dance at the ribbon pole
+            {
+                if (target->HasAura(58933) && m_removeMode == AURA_REMOVE_BY_EXPIRE)
+                    target->CastSpell(target, 58934, true, NULL, this);
+                target->RemoveAurasDueToSpell(56327);
                 return;
             }
             case 32286:                                     // Focus Target Visual
