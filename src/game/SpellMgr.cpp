@@ -2140,6 +2140,13 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 if (spellId_1 == 29166 && spellId_2 == 67385 )
                     return false;
             }
+			
+            if( spellInfo_2->SpellFamilyName == SPELLFAMILY_SHAMAN )
+            {
+                // Rip and Flurry(Shaman)
+                if (spellInfo_1->SpellIconID == 108 && spellInfo_2->SpellIconID == 108)
+                    return false;
+            }
 					
             break;
         case SPELLFAMILY_ROGUE:
@@ -2276,6 +2283,14 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             // Bloodlust and Bloodthirst (multi-family check)
             if( spellInfo_1->Id == 2825 && spellInfo_2->SpellIconID == 38 && spellInfo_2->SpellVisual[0] == 0 )
                 return false;
+			
+            if( spellInfo_2->SpellFamilyName == SPELLFAMILY_DRUID )
+            {   
+                // Rip and Flurry(Shaman)
+                if (spellInfo_1->SpellIconID == 108 && spellInfo_2->SpellIconID == 108)
+                    return false;
+            }
+			
             break;
         case SPELLFAMILY_DEATHKNIGHT:
             if (spellInfo_2->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT)
