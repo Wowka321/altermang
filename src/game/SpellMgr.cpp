@@ -1870,6 +1870,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     if( (spellInfo_1->Id == 63311 && spellInfo_2->SpellIconID == 3317) ||
                         (spellInfo_2->Id == 63311 && spellInfo_1->SpellIconID == 3317) )
                         return false;
+						
+                    // Blood Pact and Blood Drinker
+                    if( spellInfo_1->Id == 70855 && spellInfo_2->SpellIconID == 541)
+                        return false;
 
                     break;
                 }
@@ -1989,6 +1993,12 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             if( spellInfo_2->SpellFamilyName == SPELLFAMILY_PRIEST )
                 if( spellInfo_1->SpellIconID == 207 && spellInfo_2->SpellIconID == 207)
                     return false;
+					
+            // Blood Pact and Blood Drinker
+            if( spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC )
+                    if( spellInfo_1->SpellIconID == 541 && spellInfo_2->Id == 70855)
+                        return false;
+						
             break;
         case SPELLFAMILY_WARRIOR:
             if( spellInfo_2->SpellFamilyName == SPELLFAMILY_WARRIOR )
