@@ -2019,7 +2019,7 @@ bool ChatHandler::HandleJailCommand(const char *args)
 
     //Check security
     uint32 accountid = sObjectMgr.GetPlayerAccountIdByGUID(GUID);
-    QueryResult* resultgm = loginDatabase.PQuery("SELECT gmlevel FROM account WHERE id = '%u'",accountid);
+    QueryResult* resultgm = LoginDatabase.PQuery("SELECT gmlevel FROM account WHERE id = '%u'",accountid);
     if(resultgm)
     {
         Field* fields = resultgm->Fetch();
@@ -2113,9 +2113,9 @@ bool ChatHandler::HandleJailCommand(const char *args)
             Field *fields = result->Fetch();
             uint32 acc_id = fields[1].GetUInt32();
 
-            loginDatabase.BeginTransaction();
-            result = loginDatabase.PQuery("SELECT * FROM `account` WHERE `id`='%u' LIMIT 1", acc_id);
-            loginDatabase.CommitTransaction();
+            LoginDatabase.BeginTransaction();
+            result = LoginDatabase.PQuery("SELECT * FROM `account` WHERE `id`='%u' LIMIT 1", acc_id);
+            LoginDatabase.CommitTransaction();
 
             if (!result)
             {
@@ -2125,9 +2125,9 @@ bool ChatHandler::HandleJailCommand(const char *args)
             ban_reason = GetMangosString(LANG_JAIL_BAN_REASON);
             ban_by = GetMangosString(LANG_JAIL_BAN_BY);
 
-            loginDatabase.BeginTransaction();
-            loginDatabase.PExecute("INSERT IGNORE INTO `account_banned` (`id`,`bandate`,`bannedby`,`banreason`) VALUES ('%u',UNIX_TIMESTAMP,'%s','%s')", acc_id, ban_by.c_str(), ban_reason.c_str());
-            loginDatabase.CommitTransaction();
+            LoginDatabase.BeginTransaction();
+            LoginDatabase.PExecute("INSERT IGNORE INTO `account_banned` (`id`,`bandate`,`bannedby`,`banreason`) VALUES ('%u',UNIX_TIMESTAMP,'%s','%s')", acc_id, ban_by.c_str(), ban_reason.c_str());
+            LoginDatabase.CommitTransaction();
 
             delete result;
         }
@@ -2194,9 +2194,9 @@ bool ChatHandler::HandleJailCommand(const char *args)
         ban_reason = GetMangosString(LANG_JAIL_BAN_REASON);
         ban_by = GetMangosString(LANG_JAIL_BAN_BY);
 
-        loginDatabase.BeginTransaction();
-        loginDatabase.PExecute("INSERT IGNORE INTO `account_banned` (`id`,`bandate`,`bannedby`,`banreason`) VALUES ('%u',UNIX_TIMESTAMP,'%s','%s')", acc_id, ban_by.c_str(), ban_reason.c_str());
-        loginDatabase.CommitTransaction();
+        LoginDatabase.BeginTransaction();
+        LoginDatabase.PExecute("INSERT IGNORE INTO `account_banned` (`id`,`bandate`,`bannedby`,`banreason`) VALUES ('%u',UNIX_TIMESTAMP,'%s','%s')", acc_id, ban_by.c_str(), ban_reason.c_str());
+        LoginDatabase.CommitTransaction();
 
         chr->GetSession()->LogoutPlayer(false);
     }

@@ -2053,7 +2053,7 @@ bool ChatHandler::HandlePIeMailCommand(const char* args)
 	std::string username = GetMangosString(LANG_ERROR);
 	AccountTypes security = SEC_PLAYER;
 
-	QueryResult* result = loginDatabase.PQuery("SELECT username,gmlevel,email FROM account WHERE id = '%u'",accId);
+	QueryResult* result = LoginDatabase.PQuery("SELECT username,gmlevel,email FROM account WHERE id = '%u'",accId);
 	if(result)
 	{
 		Field* fields = result->Fetch();
