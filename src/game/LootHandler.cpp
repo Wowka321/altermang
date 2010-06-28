@@ -339,7 +339,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
                             // the reset time is set but not added to the scheduler
                             // until the players leave the instance
                             time_t resettime = go->GetRespawnTimeEx() + 2 * HOUR;
-                            if(InstanceSave *save = sInstanceSaveMgr.GetInstanceSave(player->GetInstanceId()))
+                            if(InstanceSave *save = player->GetMap()->GetInstanceSave())
                             if(save->GetResetTime() < resettime) save->SetResetTime(resettime);
                         }
                     }
@@ -414,7 +414,7 @@ void WorldSession::DoLootRelease(ObjectGuid lguid)
                             // the reset time is set but not added to the scheduler
                             // until the players leave the instance
                             time_t resettime = go->GetRespawnTimeEx() + 2 * HOUR;
-                            if(InstanceSave *save = sInstanceSaveMgr.GetInstanceSave(player->GetInstanceId()))
+                            if(InstanceSave *save = player->GetMap()->GetInstanceSave())
                             if(save->GetResetTime() < resettime) save->SetResetTime(resettime);
                         }
                     }

@@ -7839,7 +7839,7 @@ void Spell::EffectLeapForward(SpellEffectIndex eff_idx)
         VMAP::IVMapManager *vmgr = VMAP::VMapFactory::createOrGetVMapManager();
         if(vmgr->getObjectHitPos(mapId, cx,cy,cz+losH, x_i,y_i,z_i+losH, v_x,v_y,v_z,0))
         {
-            float objSize = unitTarget->GetObjectSize()/dl_2d;
+            float objSize = unitTarget->GetObjectBoundingRadius()/dl_2d;
             v_x -= dx*objSize, v_y -= dy*objSize;
             if(!isFallorFly)
                 n_itrs = int( sqrtf((v_x-cx)*(v_x-cx)+(v_y-cy)*(v_y-cy))/dl_2d );
@@ -7884,7 +7884,7 @@ void Spell::EffectLeapForward(SpellEffectIndex eff_idx)
 
                 if(fabs(v_z - height)/dl_2d > 2.7475f)		// >tan(70)
                 {
-                    float objSize = unitTarget->GetObjectSize()/dl_2d;
+                    float objSize = unitTarget->GetObjectBoundingRadius()/dl_2d;
                     v_x = x_i-dx*objSize, v_y = y_i-dy*objSize;
                     break;
                 }
