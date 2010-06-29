@@ -879,9 +879,13 @@ enum MangosStrings
     LANG_CHARACTERS_LIST_LINE_CONSOLE   = 1140,
     LANG_CHARACTERS_LIST_LINE_CHAT      = 1141,
     LANG_ACCOUNT_LIST_LINE_CHAT         = 1142,
-    LANG_BAN_WORLD_ANNOUNCE             = 1143,
-    LANG_PERMBAN_WORLD_ANNOUNCE         = 1144,
-    // Room for more level 3              1143-1199 not used
+    LANG_NPC_GO_INFO_GAME_EVENT_S       = 1143,
+    LANG_NPC_GO_INFO_GAME_EVENT_D       = 1144,
+    LANG_NPC_GO_INFO_POOL               = 1145,
+    LANG_NPC_GO_INFO_TOP_POOL           = 1146,
+    LANG_NPC_GO_INFO_POOL_GAME_EVENT_S  = 1147,
+    LANG_NPC_GO_INFO_POOL_GAME_EVENT_D  = 1148,
+    // Room for more level 3              1149-1199 not used
 
     // Debug commands
     LANG_CINEMATIC_NOT_EXIST            = 1200,
@@ -893,6 +897,8 @@ enum MangosStrings
     // Use for not-in-offcial-sources patches
     //                                    10000-10999
     LANG_PINFO_EMAIL                    = 11001,
+    LANG_BAN_WORLD_ANNOUNCE             = 11002,
+    LANG_PERMBAN_WORLD_ANNOUNCE         = 11003,
 
     // Use for custom patches             11000-11999
 
