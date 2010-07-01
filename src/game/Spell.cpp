@@ -1179,16 +1179,6 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
         return;
     }
 
-    // Recheck deflection (only for delayed spells)
-    if (m_spellInfo->speed && unit->HasAura(19263))
-    {
-        if (realCaster)
-            realCaster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_DEFLECT);
-
-        ResetEffectDamageAndHeal();
-        return;
-    }
-
     if (unit->GetTypeId() == TYPEID_PLAYER)
     {
         ((Player*)unit)->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_BE_SPELL_TARGET, m_spellInfo->Id);
@@ -2977,13 +2967,6 @@ void Spell::cast(bool skipCheck)
                 AddTriggeredSpell(60089);
             if (m_spellInfo->SpellIconID == 2852 && (m_spellInfo->AttributesEx & 0x28020)) // Berserk
                 AddPrecastSpell(58923); // Hit 3 targets at once with mangle in dire bear form
-            break;
-        }
-        case SPELLFAMILY_HUNTER:
-        {
-            // Deterrence
-            if (m_spellInfo->Id == 19263)
-                AddTriggeredSpell(67801);
             break;
         }
         case SPELLFAMILY_ROGUE:
