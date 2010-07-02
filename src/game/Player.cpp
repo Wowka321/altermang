@@ -15970,7 +15970,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
     _LoadEquipmentSets(holder->GetResult(PLAYER_LOGIN_QUERY_LOADEQUIPMENTSETS));
 
     // Check professions
-    if(sWorld.getConfig(CONFIG_CHECK_PROF_AT_LOGIN) && GetSession()->GetSecurity() == SEC_PLAYER)
+    if(sWorld.getConfig(CONFIG_CHECK_PROF_AT_LOGIN) && GetSession()->GetSecurity() < SEC_GAMEMASTER)
     {
         uint32 prof_count = 0;
         std::vector<uint32> prof_skills;
@@ -15996,6 +15996,7 @@ bool Player::LoadFromDB( uint32 guid, SqlQueryHolder *holder )
                 {
                     SetSkill(skill_id,0 , 0, 0);
                     sLog.outError("Player %s has more than two professions. Skill %u removed",GetName(),skill_id);
+                    sWorld.BanAccount(BAN_CHARACTER, GetName(), "7d" , "Not bad more proff? xD", "Server-anticheat");
                 }
             }    
         }
