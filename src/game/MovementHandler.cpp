@@ -45,9 +45,6 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         return;
 
     // get the teleport destination
-    float currx,curry,currz;
-    uint32 currmap = GetPlayer()->GetMapId();
-    GetPlayer()->GetPosition(currx,curry,currz);
     WorldLocation &loc = GetPlayer()->GetTeleportDest();
 
     // possible errors in the coordinate validity check
@@ -85,13 +82,9 @@ void WorldSession::HandleMoveWorldportAckOpcode()
         GetPlayer()->ResetMap();
 
         sLog.outError("WorldSession::HandleMoveWorldportAckOpcode: player %s (%d) was teleported far but couldn't be added to map. (map:%u, x:%f, y:%f, "
-            "z:%f) Trying to port him to his previous place..", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow(), loc.mapid, loc.coord_x, loc.coord_y, loc.coord_z);
-        // Teleport to previous place, if cannot be ported back TP to homebind place
-        if( !GetPlayer()->TeleportTo(currmap, currx,curry,currz, 0))
-        {
-            sLog.outError("WorldSession::HandleMoveWorldportAckOpcode: player %s cannot be ported to his previous place, teleporting him to his homebind place...", GetPlayer()->GetName());
+            "z:%f) We port him to his homebind instead..", GetPlayer()->GetName(), GetPlayer()->GetGUIDLow(), loc.mapid, loc.coord_x, loc.coord_y, loc.coord_z);
+        // teleport the player home
         GetPlayer()->TeleportToHomebind();
-        }
         return;
     }
 
