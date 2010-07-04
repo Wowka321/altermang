@@ -2891,7 +2891,7 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     int32 bp0 = m_modifier.m_amount;
 
                     if (Unit* caster = GetCaster())
-                        target->CastCustomSpell(caster,48210,&bp0,NULL,NULL,true,NULL,this,GetCasterGUID());
+                        target->CastCustomSpell(caster, 48210, &bp0, NULL, NULL, true, NULL, this);
                 }
             }
             break;
@@ -4829,7 +4829,7 @@ void Aura::HandleModMechanicImmunity(bool apply, bool /*Real*/)
         uint32 mechanic = 1 << (misc-1);
 
         //immune movement impairment and loss of control
-        if(GetId()==42292 || GetId()==59752 || GetId()==53490)
+        if(GetId()==42292 || GetId()==59752 || GetId()==65547 || GetId()==53490)
             mechanic=IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK;
 
         target->RemoveAurasAtMechanicImmunity(mechanic,GetId());
