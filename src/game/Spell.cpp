@@ -1574,7 +1574,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 73708:                                 // Defile 25
                 case 73709:                                 // Defile 10H
                 case 73710:                                 // Defile 25H
-                case 70346: case 72868: case 72869:         // Slime Puddle
+                case 70346: case 72456: case 72868: case 72869:  // Slime Puddle
                     if (Unit* realCaster = GetAffectiveCaster())
                         radius = realCaster->GetObjectScale() * 10;
                     break;
