@@ -1827,6 +1827,7 @@ bool InstanceMap::Add(Player *player)
                         GetInstanceSave()->GetDifficulty(), GetInstanceSave()->GetPlayerCount(),
                         GetInstanceSave()->GetGroupCount(), GetInstanceSave()->CanReset());
                         player->RepopAtGraveyard();
+                        return false;
                 }
             }
             else
