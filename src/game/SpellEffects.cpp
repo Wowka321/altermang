@@ -332,6 +332,7 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     case 62598: case 62937:     // Detonate 
                     case 65279:                 // Lightning Nova 
                     case 62311: case 64596:     // Cosmic Smash 
+                    case 70346: case 72868: case 72869:    // Slime Puddle 
                     { 
                         float distance = unitTarget->GetDistance2d(m_targets.m_destX, m_targets.m_destY); 
                         damage *= exp(-distance/15.0f); 
