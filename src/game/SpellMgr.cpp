@@ -2254,6 +2254,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 // Divine Sacrifice and Divine Guardian
                 if (spellInfo_1->SpellIconID == 3837 && spellInfo_2->SpellIconID == 3837)
                     return false;
+
+                // Blood Corruption and Righteous Vengeance
+                if ((spellInfo_2->Id == 61840 && spellInfo_1->Id == 53742) ||
+                    (spellInfo_1->Id == 61840 && spellInfo_2->Id == 53742))
+                    return false;
             }
 
             // Inner Fire and Consecration
