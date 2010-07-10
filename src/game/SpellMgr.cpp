@@ -1954,6 +1954,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
             // Arcane Intellect and Insight
             if( spellInfo_1->SpellIconID == 125 && spellInfo_2->Id == 18820 )
                 return false;
+				
+            // Arcane Missiles and Moonfire
+            if( spellInfo_2->SpellFamilyName == SPELLFAMILY_DRUID )
+                if( spellInfo_1->SpellIconID == 225 && spellInfo_2->SpellIconID == 225)
+                    return false;
 
             break;
         case SPELLFAMILY_WARLOCK:
@@ -2160,6 +2165,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 if (spellInfo_1->SpellIconID == 108 && spellInfo_2->SpellIconID == 108)
                     return false;
             }
+			
+            // Arcane Missiles and Moonfire
+            if( spellInfo_2->SpellFamilyName == SPELLFAMILY_MAGE )
+                if( spellInfo_1->SpellIconID == 225 && spellInfo_2->SpellIconID == 225)
+                    return false;
 					
             break;
         case SPELLFAMILY_ROGUE:
